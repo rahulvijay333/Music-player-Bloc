@@ -29,7 +29,7 @@ resetApp(BuildContext context) async {
   await refreshDatabaseFunction();
 
   favNotifier.value.clear();
-  playlistNotifier.value.clear();
+  // playlistNotifier.value.clear();
 
   justAudioPlayerObject.stop();
   globalMiniList.value.clear();

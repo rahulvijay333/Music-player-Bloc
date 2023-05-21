@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
 import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/playlist/playlist_model.dart';
+import 'package:hive_music_player/hive/model/playlist_con/concatenation.dart';
 import 'package:hive_music_player/screens/home/screen_home.dart';
 import 'package:hive_music_player/screens/miniPlayer/mini_player.dart';
 import 'package:hive_music_player/screens/playlists/screen/playlist.dart';
@@ -12,12 +15,13 @@ import 'package:hive_music_player/screens/playlists/widgets/play_list_card.dart'
 class ScreenPlaylists extends StatelessWidget {
   ScreenPlaylists({super.key});
 
-  final playlistbx = PlaylistBox.getInstance();
+  // final playlistbx = PlaylistBox.getInstance();
 
   final playlistNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    BlocProvider.of<PlaylistBloc>(context).add(GetAllPlaylist());
     return SafeArea(
       child: Scaffold(
           bottomNavigationBar: ValueListenableBuilder(
@@ -48,15 +52,12 @@ class ScreenPlaylists extends StatelessWidget {
           ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: ValueListenableBuilder(
-              valueListenable: playlistbx.listenable(),
-              builder: (context, value, child) {
-                final playlistList = value.values.toList();
-
-                if (playlistList.isEmpty) {
+            child: BlocBuilder<PlaylistBloc, PlaylistState>(
+              builder: (context, state) {
+                if (state.playlists.isEmpty) {
                   return const Center(
                     child: Text(
-                      'No Playlist',
+                      'No  Playlist',
                       style: TextStyle(color: Colors.white),
                     ),
                   );
@@ -66,32 +67,31 @@ class ScreenPlaylists extends StatelessWidget {
                     itemBuilder: (context, index) {
                       return GestureDetector(
                           onTap: () {
-                            final list = playlistbx.values.toList();
-
-                            List<AudioModel> songlist =
-                                list[index].playlistSongs;
+                           
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (ctx1) {
                                 return ScreenPlaylist(
                                     playlistIndex: index,
                                     playlistName:
-                                        playlistList[index].playlistName!,
-                                    playlistSongLists: songlist);
+                                        state.playlists[index].playlistName!,
+                                    playlistSongLists:
+                                        state.playlists[index].playlistSongs);
                               },
                             ));
                           },
                           child: PlaylistCard(
                               index: index,
-                              playlistName: playlistList[index].playlistName!,
+                              playlistName:
+                                  state.playlists[index].playlistName!,
                               songCount:
-                                  playlistList[index].playlistSongs.length));
+                                  state.playlists[index].playlistSongs.length));
                     },
                     separatorBuilder: (context, index) {
                       return const SizedBox(
                         height: 10,
                       );
                     },
-                    itemCount: playlistList.length);
+                    itemCount: state.playlists.length);
               },
             ),
           )),
@@ -183,7 +183,11 @@ class ScreenPlaylists extends StatelessWidget {
                         });
                         playlistNameController.clear();
                       } else {
-                        createPlaylist(playlistNameController.text);
+                        
+                        //------------------------------------------------------------------bloc implementation
+                        BlocProvider.of<PlaylistBloc>(context)
+                            .add(CreatePlaylist(playlistNameController.text));
+
                         playlistNameController.clear();
                         Navigator.of(context).pop();
                       }

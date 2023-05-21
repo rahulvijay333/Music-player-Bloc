@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
+import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
 import 'package:hive_music_player/hive/db_functions/mostly_played/moslty_played_function.dart';
 import 'package:hive_music_player/hive/db_functions/recentlyPlayed/recently_function.dart';
@@ -35,8 +38,9 @@ void main(List<String> args) async {
     Hive.registerAdapter(PlaylistAdapter());
   }
 
-  //open database for all songs
+  //open database for all 
   await Hive.openBox<AudioModel>(musicsDbName);
+  await Hive.openBox<Playlist>(playlistDbName);
 
   //open database for recentplayed
   openRecentlyPlayed();
@@ -48,7 +52,7 @@ void main(List<String> args) async {
   openMostlyPlayedDb();
 
   //open database for playlist
-  openPlaylistDb();
+  // openPlaylistDb();
 
   runApp(const MyApp());
 }
@@ -58,7 +62,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-        debugShowCheckedModeBanner: false, home: ScreenSplash());
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AllSongsBloc(),
+         
+        ),
+        BlocProvider(
+          create: (context) => PlaylistBloc(),
+         
+        )
+      ],
+      child: const MaterialApp(
+          debugShowCheckedModeBanner: false, home: ScreenSplash()),
+    );
   }
 }

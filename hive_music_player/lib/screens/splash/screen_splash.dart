@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
+import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
 import 'package:hive_music_player/hive/db_functions/splash/splash_functions.dart';
 

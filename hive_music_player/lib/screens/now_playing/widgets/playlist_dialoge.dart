@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/hive/model/playlist/playlist_model.dart';
-
-
 
 showNowPlayingPlaylistDialog(BuildContext context, int songIndex) {
   final box = PlaylistBox.getInstance();
@@ -16,48 +15,45 @@ showNowPlayingPlaylistDialog(BuildContext context, int songIndex) {
         backgroundColor: Colors.transparent.withOpacity(1),
         title: const Text('Add to Playlist',
             style: TextStyle(color: Colors.white)),
-        content: playlist_list.isNotEmpty
-            ? SizedBox(
-                width: 300,
-                //height: 200,
-                child: ListView.separated(
-                  physics: const BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: playlist_list.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        //--------------------------------playlist add function
-                        addToPlaylist(
-                            playlistIndex: index,
-                            songIndex: songIndex,
-                            context: context);
+        content: BlocBuilder<PlaylistBloc, PlaylistState>(
+          builder: (context, state) {
+            if (state.playlists.isEmpty) {
+              return const Center(
+                child: Text('No Playlists'),
+              );
+            }
 
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(playlist_list[index].playlistName!,
-                          style: const TextStyle(color: Colors.white)),
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return const Divider(
-                      color: Colors.white,
-                      thickness: 0.2,
-                    );
-                  },
-                ),
-              )
-            : const SizedBox(
-                width: 300,
-                height: 100,
-                child: Center(
-                  child: Center(
-                      child: Text(
-                    'No playlist',
-                    style: TextStyle(color: Colors.white),
-                  )),
-                ),
+            return SizedBox(
+              width: 300,
+              //height: 200,
+              child: ListView.separated(
+                physics: const BouncingScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: state.playlists.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      //--------------------------------playlist bloc add function
+                   
+                      BlocProvider.of<PlaylistBloc>(context)
+                          .add(AddToPlaylist(index, songIndex, context));
+
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(state.playlists[index].playlistName!,
+                        style: const TextStyle(color: Colors.white)),
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return const Divider(
+                    color: Colors.white,
+                    thickness: 0.2,
+                  );
+                },
               ),
+            );
+          },
+        ),
         actions: [
           TextButton(
               onPressed: () {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/playlist/playlist_model.dart';
@@ -59,7 +61,7 @@ class PlaylistSongSelectTile extends StatelessWidget {
                       allSongs[indexSong].artist!,
                       maxLines: 1,
                       style: const TextStyle(
-                          fontSize: 16.0,
+                          fontSize: 14.0,
                           //color: Colors.grey[600],
                           color: Colors.white),
                     ),
@@ -67,13 +69,9 @@ class PlaylistSongSelectTile extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: ValueListenableBuilder(
-                  valueListenable: playlistNotifier,
-                  builder: (context, List<Playlist> notifier, child) {
-                    final list =
-                        playlistNotifier.value[playlistIndex].playlistSongs;
-
-                    if (list
+                icon: BlocBuilder<PlaylistBloc, PlaylistState>(
+                  builder: (context, state) {
+                    if (state.playlists[playlistIndex].playlistSongs
                         .where(
                             (element) => element.id == allSongs[indexSong].id)
                         .isEmpty) {
@@ -91,10 +89,15 @@ class PlaylistSongSelectTile extends StatelessWidget {
                 ),
                 onPressed: () {
                   // Add button pressed
-                  addToPlaylist(
-                      playlistIndex: playlistIndex,
-                      songIndex: indexSong,
-                      context: context);
+                  // addToPlaylist(
+                  //     playlistIndex: playlistIndex,
+                  //     songIndex: indexSong,
+                  //     context: context);
+
+                  //---------------------------------------------bloc add to playlist
+
+                  BlocProvider.of<PlaylistBloc>(context)
+                      .add(AddToPlaylist(playlistIndex, indexSong,context));
                 },
               ),
             ],

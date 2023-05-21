@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
 import 'package:hive_music_player/hive/db_functions/mostly_played/moslty_played_function.dart';
 import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
@@ -8,6 +10,8 @@ import 'package:hive_music_player/hive/model/fav/fav_mode.dart';
 import 'package:hive_music_player/hive/model/recently_played/recently_model.dart';
 import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+
+//tile containing fav and delete function
 
 class PlaylistSongsTileCustom extends StatefulWidget {
   const PlaylistSongsTileCustom(
@@ -164,9 +168,10 @@ class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
                 color: Colors.white,
               ),
               onPressed: () {
-                deleteSongFromPlaylist(
-                    playListIndex: widget.playlistindex,
-                    songIndex: widget.index);
+                //-------------------------------------------------bloc delete from playlist
+                BlocProvider.of<PlaylistBloc>(context).add(
+                    DeleteFromPlaylist(widget.playlistindex, widget.index));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('song removed'),duration: Duration(seconds: 1),));
               },
             ),
           ],

@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
 import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
 import 'package:hive_music_player/hive/model/playlist/playlist_model.dart';
-
-
+import 'package:hive_music_player/hive/model/playlist_con/concatenation.dart';
 
 final createPlaylistController = TextEditingController();
 
@@ -43,10 +46,10 @@ showPlaylistDialog(BuildContext context, int songIndex) {
                         return GestureDetector(
                           onTap: () {
                             //--------------------------------playlist add function
-                            addToPlaylist(
-                                playlistIndex: index,
-                                songIndex: songIndex,
-                                context: context);
+                            // addToPlaylist(
+                            //     playlistIndex: index,
+                            //     songIndex: songIndex,
+                            //     context: context);
 
                             Navigator.of(context).pop();
                           },
@@ -62,10 +65,13 @@ showPlaylistDialog(BuildContext context, int songIndex) {
                               setState(() {
                                 selected = value!;
                               });
-                              addToPlaylist(
-                                  playlistIndex: index,
-                                  songIndex: songIndex,
-                                  context: context);
+                              // addToPlaylist(
+                              //     playlistIndex: index,
+                              //     songIndex: songIndex,
+                              //     context: context);
+
+                              // BlocProvider.of<PlaylistBloc>(context).add(AddToPlaylist(index, songIndex, context));
+
                               await Future.delayed(const Duration(seconds: 1));
                               Navigator.of(context).pop();
                             },
@@ -117,6 +123,8 @@ showPlaylistDialog(BuildContext context, int songIndex) {
     },
   );
 }
+
+
 
 //-------------------------------------------------------------create new
 createPlayListDialoge(BuildContext context) {
@@ -199,7 +207,11 @@ createPlayListDialoge(BuildContext context) {
                         errorNameCheck = true;
                       });
                     } else {
-                      createPlaylist(createPlaylistController.text);
+                      // createPlaylist(createPlaylistController.text);
+
+                      BlocProvider.of<PlaylistBloc>(context)
+                          .add(CreatePlaylist(createPlaylistController.text));
+
                       Navigator.of(context).pop();
                       createPlaylistController.clear();
                     }

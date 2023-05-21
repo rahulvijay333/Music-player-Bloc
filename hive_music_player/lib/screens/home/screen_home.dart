@@ -42,16 +42,16 @@ class _ScreenHomeState extends State<ScreenHome> {
         nowPlayingIndex.value = index;
 
         //index
-        miniPlayerIndex.value = index;
-        miniPlayerScreenIndex.value = index;
+        // miniPlayerIndex.value = index;
+        // miniPlayerScreenIndex.value = index;
 
-        miniPlayerStatusNotifier.value = true;
-        miniPlayerStatusNotifier.notifyListeners();
+        // miniPlayerStatusNotifier.value = true;
+        // miniPlayerStatusNotifier.notifyListeners();
 
-        //index
-        miniPlayerIndex.notifyListeners();
-        miniPlayerScreenIndex.notifyListeners();
-        nowPlayingIndex.notifyListeners();
+        // //index
+        // miniPlayerIndex.notifyListeners();
+        // miniPlayerScreenIndex.notifyListeners();
+        // nowPlayingIndex.notifyListeners();
 
         if (globalMiniList.value.isNotEmpty) {
          

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
+import 'package:hive_music_player/hive/model/playlist_con/concatenation.dart';
 
 class PlaylistCard extends StatefulWidget {
   final String playlistName;
@@ -89,7 +91,8 @@ class _PlaylistCardState extends State<PlaylistCard> {
                     color: Colors.white,
                   ),
                   onPressed: () {
-                    //----------------------------------------edit playlist
+                    //----------------------------------------edit playlist  //snack bar implemention left <<<<---------------
+
                     editPlayListDialoge(
                       index: widget.index,
                       playlistName: widget.playlistName,
@@ -172,7 +175,10 @@ class _PlaylistCardState extends State<PlaylistCard> {
                     onPressed: () {
                       //---------------------------------save
                       if (_editPlaylistController.text == oldPlaylistName) {
-                        editPlayList(name: oldPlaylistName, index: index);
+                        //editPlayList(name: oldPlaylistName, index: index);
+                        BlocProvider.of<PlaylistBloc>(context).add(
+                            EditPlaylist(name: oldPlaylistName, index: index));
+
                         Navigator.of(context).pop();
                       } else if (checkPlaylistName(
                           _editPlaylistController.text)) {
@@ -186,8 +192,12 @@ class _PlaylistCardState extends State<PlaylistCard> {
                           checkPlalistNameExist = false;
                         });
                       } else {
-                        editPlayList(
-                            name: _editPlaylistController.text, index: index);
+                        // editPlayList(
+                        //     name: _editPlaylistController.text, index: index);
+
+                        //------------------------------------------------------------------------playlist edit bloc
+                        BlocProvider.of<PlaylistBloc>(context).add(EditPlaylist(
+                            name: _editPlaylistController.text, index: index));
                         Navigator.of(context).pop();
                       }
                     },
@@ -222,8 +232,10 @@ deleteDialogue(BuildContext context, int index) {
         actions: [
           TextButton(
               onPressed: () {
-                deletePlaylist(index);
+                //deletePlaylist(index);
 
+                BlocProvider.of<PlaylistBloc>(context)
+                    .add(DeletePlaylist(index));
                 Navigator.of(context).pop();
               },
               child: const Text('Yes', style: TextStyle(color: Colors.white))),
