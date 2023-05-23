@@ -1,11 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
-
 import 'package:hive_music_player/common/widgets/menu_tile.dart';
-import 'package:hive_music_player/hive/db_functions/mostly_played/moslty_played_function.dart';
-import 'package:hive_music_player/hive/db_functions/recentlyPlayed/recently_function.dart';
 import 'package:hive_music_player/hive/db_functions/splash/splash_functions.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/recently_played/recently_model.dart';
@@ -16,14 +17,11 @@ import 'package:hive_music_player/screens/mostly_played/screen_mostlyPlayed.dart
 import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 import 'package:hive_music_player/screens/playlists/screen/screen_playlits.dart';
 import 'package:hive_music_player/screens/settings/screen_settings.dart';
+import 'package:just_audio/just_audio.dart';
 
 import 'widgets/recentlyPlayed_tile.dart';
 
-ValueNotifier<bool> miniPlayerStatusNotifier = ValueNotifier(false);
-ValueNotifier<int> miniPlayerIndex = ValueNotifier(0);
-ValueNotifier<int> miniPlayerScreenIndex = ValueNotifier(0);
 ValueNotifier<int> nowPlayingIndex = ValueNotifier(0);
-bool showMiniPlayer = false;
 
 class ScreenHome extends StatefulWidget {
   const ScreenHome({super.key});
@@ -36,61 +34,57 @@ class _ScreenHomeState extends State<ScreenHome> {
   final recentBox = RecentlyPlayedBox.getinstance();
 
   @override
-  void initState() {
+  void didChangeDependencies() {
     justAudioPlayerObject.currentIndexStream.listen((index) {
-      if (index != null && mounted && globalMiniList.value.isNotEmpty) {
+      if (index != null &&
+          mounted &&
+          updatingList.value.isNotEmpty != null &&
+          justAudioPlayerObject.playerState.playing &&
+          justAudioPlayerObject.playerState.processingState !=
+              ProcessingState.idle) {
         nowPlayingIndex.value = index;
+        BlocProvider.of<MiniPlayerBloc>(context).add(UpdateMiniIndex(index));
 
-        //index
-        // miniPlayerIndex.value = index;
-        // miniPlayerScreenIndex.value = index;
-
-        // miniPlayerStatusNotifier.value = true;
-        // miniPlayerStatusNotifier.notifyListeners();
-
-        // //index
-        // miniPlayerIndex.notifyListeners();
-        // miniPlayerScreenIndex.notifyListeners();
-        // nowPlayingIndex.notifyListeners();
-
-        if (globalMiniList.value.isNotEmpty) {
-         
-          updateMostlyPlayedDB(globalMiniList.value[index]);
-
-          //recentply played
+        //---------------------------------------------------------------------->>recently played bloc
+        try {
           final recentSong = RecentlyPlayed(
-              globalMiniList.value[index].title,
-              globalMiniList.value[index].artist,
-              globalMiniList.value[index].id,
-              globalMiniList.value[index].uri,
-              globalMiniList.value[index].duration);
+              updatingList.value[index].title,
+              updatingList.value[index].artist,
+              updatingList.value[index].id,
+              updatingList.value[index].uri,
+              updatingList.value[index].duration);
+          log('Updating recent');
 
-          updateRecentPlay(recentSong);
+          BlocProvider.of<RecentlyPlayedBloc>(context)
+              .add(UpdateRecentlyplayed(recentSong: recentSong));
+        } catch (e) {
+          log('Error in recent played update');
         }
+// //----------------------------------------------------------------------->>mostly played bloc
+
+        BlocProvider.of<MostlyPlayedBloc>(context)
+            .add(UpdateMostlyPLayed(updatingList.value[index]));
       }
     });
 
-    super.initState();
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    //-------------------------------------------------recently bloc
+
+    BlocProvider.of<RecentlyPlayedBloc>(context).add(GetRecentlyPlayed());
+
     return SafeArea(
       child: Scaffold(
-        bottomNavigationBar: ValueListenableBuilder(
-          valueListenable: globalMiniList,
-          builder: (context, value, child) {
-            return ValueListenableBuilder(
-              valueListenable: miniPlayerStatusNotifier,
-              builder: (context, value, child) {
-                if (miniPlayerStatusNotifier.value) {
-                  return const MiniPlayer();
-                } else {
-                  return const SizedBox();
-                }
-              },
-            );
+        bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
+          builder: (context, state) {
+            if (state.showPlayer == false) {
+              return const SizedBox();
+            }
+            return const MiniPlayer();
           },
         ),
         backgroundColor: mainColor,
@@ -140,7 +134,6 @@ class _ScreenHomeState extends State<ScreenHome> {
                   children: [
                     //----------------------------row playlist and favouruties
                     Row(
-                     
                       children: [
                         GestureDetector(
                             onTap: () {
@@ -226,76 +219,80 @@ class _ScreenHomeState extends State<ScreenHome> {
               ),
 
               //---------------------------------------------recently played
+
               Expanded(
-                child: ValueListenableBuilder(
-                    valueListenable: recentBox.listenable(),
-                    builder: (context, Box<RecentlyPlayed> box, child) {
-                      final recentlist = box.values.toList();
-                      final recent = recentlist.reversed.toList();
+                  child: BlocBuilder<RecentlyPlayedBloc, RecentlyPlayedState>(
+                builder: (context, state) {
+                  if (state.recentList.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No Recently Played Songs',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  } else {
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisSpacing: 10, crossAxisCount: 3),
+                      itemCount: state.recentList.length > 9
+                          ? 9
+                          : state.recentList.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            final recentSong = RecentlyPlayed(
+                                state.recentList[index].title,
+                                state.recentList[index].artist,
+                                state.recentList[index].id,
+                                state.recentList[index].uri,
+                                state.recentList[index].duration);
 
-                      if (recentlist.isEmpty) {
-                        return const Center(
-                          child: Text(
-                            'No Recent Songs',
-                            style: TextStyle(color: Colors.white),
-                          ),
+//---------------------------------------------------------------------->>recently played bloc
+                            BlocProvider.of<RecentlyPlayedBloc>(context).add(
+                                UpdateRecentlyplayed(recentSong: recentSong));
+//----------------------------------------------------------------------->>mostly played bloc
+
+                            BlocProvider.of<MostlyPlayedBloc>(context).add(
+                                UpdateMostlyPLayed(state.recentList[index]));
+                            //-----------------------------------------------------
+
+                            BlocProvider.of<MiniPlayerBloc>(context)
+                                .add(CloseMiniPlayer());
+                            //----------------------------
+                          
+                              updatingList.value.clear();
+                              updatingList.value = state.recentList;
+                              updatingList.notifyListeners();
+                          
+
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) {
+                                return ScreenNowPlaying(
+                                  songs: state.recentList,
+                                  index: index,
+                                );
+                              },
+                            ));
+                          },
+                          onDoubleTap: () async {
+                            // ------------------------------------------------delete bloc recently played song
+                            BlocProvider.of<RecentlyPlayedBloc>(context).add(
+                                DeleteRecentlyPlayed(
+                                    id: state.recentList[index].id!));
+                          },
+                          child: RecentlyPlayedCustomTile(
+                              songName: state.recentList[index].title!,
+                              artistName: state.recentList[index].artist!,
+                              list: state.recentList,
+                              index: index),
                         );
-                      }
-
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const BouncingScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisSpacing: 10,
-                          crossAxisCount: 3,
-                        ),
-                        itemCount: recent.length > 9 ? 9 : recent.length,
-                        itemBuilder: (BuildContext ctx, index) {
-                          return GestureDetector(
-                            onDoubleTap: () async {
-                              await deleteRecentlyPlayed(recent[index].id!);
-                            },
-                            onTap: () {
-                              //-------------------------------------------------convert into audiomodel list before sending to player screen
-                              List<AudioModel> audioList =
-                                  convertRecentlyPlayedToAudioModel(recent);
-
-                              final recentSong = RecentlyPlayed(
-                                  audioList[index].title,
-                                  audioList[index].artist,
-                                  audioList[index].id,
-                                  audioList[index].uri,
-                                  audioList[index].duration);
-                              updateRecentPlay(recentSong);
-                              updateMostlyPlayedDB(audioList[index]);
-
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) {
-                                  return ScreenNowPlaying(
-                                    songs: audioList,
-                                    index: index,
-                                  );
-                                },
-                              ));
-                              //----------------------------------------------------update mini player list
-                              globalMiniList.value.clear();
-                              globalMiniList.value.addAll(audioList);
-                              globalMiniList.notifyListeners();
-                            },
-                            child: RecentlyPlayedCustomTile(
-                              songName: recent[index].title!,
-                              artistName: recent[index].artist!,
-                              list: recent,
-                              index: index,
-                            ),
-                          );
-
-                          //
-                        },
-                      );
-                    }),
-              ),
+                      },
+                    );
+                  }
+                },
+              )),
               const SizedBox(
                 height: 10,
               ),

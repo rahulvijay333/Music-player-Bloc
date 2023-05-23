@@ -1,8 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/fav/fav_mode.dart';
 import 'package:hive_music_player/screens/all%20songs/widgets/show_playlist_dialoge.dart';
@@ -13,6 +15,8 @@ import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 ValueNotifier<List<AudioModel>> globalMiniList = ValueNotifier([]);
+
+ValueNotifier<List<AudioModel>> updatingList = ValueNotifier([]);
 
 class ScreenNowPlaying extends StatefulWidget {
   const ScreenNowPlaying({
@@ -31,6 +35,8 @@ class ScreenNowPlaying extends StatefulWidget {
 class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
   @override
   void initState() {
+    
+
     callPlayer();
 
     super.initState();
@@ -40,15 +46,15 @@ class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
     await justAudioPlayerObject.setAudioSource(createPlaylist(widget.songs),
         initialIndex: widget.index);
 
-    setState(() {
-      miniPlayerStatusNotifier.value = true;
-      miniPlayerStatusNotifier.notifyListeners();
-    });
     await justAudioPlayerObject.play();
+
   }
 
   @override
   Widget build(BuildContext context) {
+    BlocProvider.of<MiniPlayerBloc>(context)
+        .add(ShowMiniPLayer(widget.songs, widget.index));
+
     Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
@@ -179,9 +185,9 @@ class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
                                   valueListenable: nowPlayingIndex,
                                   builder: (context, value, child) {
                                     return IconButton(
-                                      icon: ValueListenableBuilder(
-                                        valueListenable: favNotifier,
-                                        builder: (context, favlist, child) {
+                                      icon: BlocBuilder<FavouritesBloc,
+                                          FavouritesState>(
+                                        builder: (context, state) {
                                           //here id and song list available.
                                           Favourites currentSong = Favourites(
                                               title: widget
@@ -200,7 +206,7 @@ class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
                                                   .songs[nowPlayingIndex.value]
                                                   .duration);
 
-                                          if (favlist
+                                          if (state.favlist
                                               .where((fav) =>
                                                   fav.id == currentSong.id)
                                               .isEmpty) {
@@ -232,7 +238,13 @@ class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
                                         // ---------------------------------------------Add to favorites
                                         if (checkFavouriteStatus(
                                             getIndexSong)) {
-                                          addToFavouritesDB(getIndexSong);
+                                          // addToFavouritesDB(getIndexSong);
+
+                                          // addToFavouritesDB(index);
+                                          BlocProvider.of<FavouritesBloc>(
+                                                  context)
+                                              .add(AddToFavourites(
+                                                  getIndexSong));
 
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(const SnackBar(
@@ -245,8 +257,12 @@ class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
                                                   )));
                                         } else if (!checkFavouriteStatus(
                                             getIndexSong)) {
-                                          //-----------------------------------------------remove from fav
-                                          removeFromFavouritesDb(getIndexSong);
+                                          //-----------------------------------------------remove fav bloc
+
+                                          BlocProvider.of<FavouritesBloc>(
+                                                  context)
+                                              .add(RemoveFromFavGeneral(
+                                                  getIndexSong));
 
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(const SnackBar(

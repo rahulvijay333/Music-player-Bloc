@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
-import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/playlist/playlist_model.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -88,12 +87,7 @@ class PlaylistSongSelectTile extends StatelessWidget {
                   },
                 ),
                 onPressed: () {
-                  // Add button pressed
-                  // addToPlaylist(
-                  //     playlistIndex: playlistIndex,
-                  //     songIndex: indexSong,
-                  //     context: context);
-
+                
                   //---------------------------------------------bloc add to playlist
 
                   BlocProvider.of<PlaylistBloc>(context)

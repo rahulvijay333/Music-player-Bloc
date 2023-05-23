@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/hive/model/recently_played/recently_model.dart';
+import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class RecentlyPlayedCustomTile extends StatelessWidget {
@@ -14,7 +14,7 @@ class RecentlyPlayedCustomTile extends StatelessWidget {
   final String songName;
   final String artistName;
   final int index;
-  final List<RecentlyPlayed> list;
+  final List<AudioModel> list;
   @override
   Widget build(BuildContext context) {
     return Column(

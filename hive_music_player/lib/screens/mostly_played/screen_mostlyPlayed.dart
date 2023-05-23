@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/hive/db_functions/mostly_played/moslty_played_function.dart';
 import 'package:hive_music_player/hive/model/mostply_played/mosltly_played_model.dart';
 import 'package:hive_music_player/screens/home/screen_home.dart';
 import 'package:hive_music_player/screens/miniPlayer/mini_player.dart';
@@ -17,21 +19,14 @@ class ScreenMostlyPlayed extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-            bottomNavigationBar: ValueListenableBuilder(
-              valueListenable: globalMiniList,
-              builder: (context, value, child) {
-                return ValueListenableBuilder(
-                  valueListenable: miniPlayerStatusNotifier,
-                  builder: (context, value, child) {
-                    if (miniPlayerStatusNotifier.value) {
-                      return const MiniPlayer();
-                    } else {
-                      return const SizedBox();
-                    }
-                  },
-                );
-              },
-            ),
+        bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
+          builder: (context, state) {
+            if (state.showPlayer == false) {
+              return const SizedBox();
+            }
+            return const MiniPlayer();
+          },
+        ),
             backgroundColor: mainColor,
             appBar: AppBar(
               title: const Text('Mostly Played'),
@@ -39,46 +34,45 @@ class ScreenMostlyPlayed extends StatelessWidget {
               backgroundColor: mainColor,
             ),
             body: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: ValueListenableBuilder(
-                  valueListenable: mostbox.listenable(),
-                  builder: (context, mostplaylist, child) {
-                    List<MostlyPlayed> mostlist = [];
-                    final mostlyPlayedList = mostbox.values.toList();
+              padding: const EdgeInsets.all(15.0),
+              child: BlocBuilder<MostlyPlayedBloc, MostlyPlayedState>(
+                builder: (context, state) {
+                  List<MostlyPlayed> mostlist = [];
+                  final mostlyPlayedList = state.mostlyList;
 
-                    //finding most played song and adding to mostlist
-                    for (var song in mostlyPlayedList) {
-                      if (song.count > 5) {
-                        mostlist.add(song);
-                      }
+                  //finding most played song and adding to mostlist
+                  for (var song in mostlyPlayedList) {
+                    if (song.count > 5) {
+                      mostlist.add(song);
                     }
+                  }
 
-                    mostlist.sort((a, b) => b.count.compareTo(a.count));
+                  mostlist.sort((a, b) => b.count.compareTo(a.count));
 
-                    if (mostlist.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          'No Songs',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      );
-                    } else {
-                      return ListView.separated(
-                          physics: const BouncingScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return MostplayedTileCustom(
-                                index: index, mostlyList: mostlist);
-                          },
-                          separatorBuilder: (context, index) {
-                            return const SizedBox(
-                              height: 10,
-                            );
-                          },
-                          itemCount:
-                              mostlist.length > 15 ? 15 : mostlist.length);
-                    }
-                  },
-                ))));
+                  if (mostlist.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No Songs',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  } else {
+                    return ListView.separated(
+                        physics: const BouncingScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return MostplayedTileCustom(
+                              index: index, mostlyList: mostlist);
+                        },
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(
+                            height: 10,
+                          );
+                        },
+                        itemCount: mostlist.length > 15 ? 15 : mostlist.length);
+                  }
+                },
+              ),
+            )));
   }
 
   clearSongDialoge(BuildContext context) {
@@ -98,9 +92,10 @@ class ScreenMostlyPlayed extends StatelessWidget {
           actions: [
             TextButton(
                 onPressed: () async {
-                  //clear function
+                  //------------------------------------------lear mostply bloc played
+                  BlocProvider.of<MostlyPlayedBloc>(context)
+                      .add(ClearMostlyPlayed());
 
-                  await clearSongsFromMostlyPlayed(context);
                   Navigator.of(ctx1).pop();
                 },
                 child: const Text(

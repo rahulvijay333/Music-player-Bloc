@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
-import 'package:hive_music_player/hive/db_functions/mostly_played/moslty_played_function.dart';
-import 'package:hive_music_player/hive/db_functions/recentlyPlayed/recently_function.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
+import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/hive/model/fav/fav_mode.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
+import 'package:hive_music_player/hive/model/mostply_played/mosltly_played_model.dart';
 import 'package:hive_music_player/hive/model/recently_played/recently_model.dart';
 
 import 'package:hive_music_player/screens/all%20songs/widgets/show_playlist_dialoge.dart';
@@ -56,12 +58,21 @@ class AllSongTileWidget extends StatelessWidget {
                       songlist[index].id,
                       songlist[index].uri,
                       songlist[index].duration);
-                  updateRecentPlay(recentSong);
-                  updateMostlyPlayedDB(songlist[index]);
 
-                  globalMiniList.value.clear();
-                  globalMiniList.value.addAll(songlist);
-                  globalMiniList.notifyListeners();
+//---------------------------------------------------------------------->>recently played bloc
+                  BlocProvider.of<RecentlyPlayedBloc>(context)
+                      .add(UpdateRecentlyplayed(recentSong: recentSong));
+//----------------------------------------------------------------------->>mostly played bloc
+
+                  BlocProvider.of<MostlyPlayedBloc>(context)
+                      .add(UpdateMostlyPLayed(songlist[index]));
+
+                  BlocProvider.of<MiniPlayerBloc>(context)
+                      .add(CloseMiniPlayer());
+
+                  updatingList.value.clear();
+                  updatingList.value.addAll(songlist);
+                  updatingList.notifyListeners();
 
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) {
@@ -96,53 +107,52 @@ class AllSongTileWidget extends StatelessWidget {
               ),
             ),
             //-----------------------------------------------favourite button status
-            IconButton(
-              icon: ValueListenableBuilder(
-                valueListenable: favNotifier,
-                builder: (context, favlist, child) {
-                  //here id and song list available.
-                  Favourites currentSong = Favourites(
-                      title: songlist[index].title,
-                      artist: songlist[index].artist,
-                      id: songlist[index].id,
-                      uri: songlist[index].uri,
-                      duration: songlist[index].duration);
 
-                  if (favlist
-                      .where((fav) => fav.id == currentSong.id)
-                      .isEmpty) {
-                    return const Icon(Icons.favorite, color: Colors.white);
-                  } else {
-                    return const Icon(
-                      Icons.favorite,
-                      color: Colors.red,
-                    );
-                  }
-                },
-              ),
-              onPressed: () {
-                // ---------------------------------------------Add to favorites
-                if (checkFavouriteStatus(index)) {
-                  addToFavouritesDB(index);
+            IconButton(icon: BlocBuilder<FavouritesBloc, FavouritesState>(
+                builder: (context, state) {
+              Favourites currentSong = Favourites(
+                  title: songlist[index].title,
+                  artist: songlist[index].artist,
+                  id: songlist[index].id,
+                  uri: songlist[index].uri,
+                  duration: songlist[index].duration);
 
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      duration: Duration(seconds: 1),
-                      behavior: SnackBarBehavior.floating,
-                      content: Text(
-                        'Song added to Favourites',
-                      )));
-                } else if (!checkFavouriteStatus(index)) {
-                  //-----------------------------------------------remove from fav
-                  removeFromFavouritesDb(index);
+              if (state.favlist
+                  .where((fav) => fav.id == currentSong.id)
+                  .isEmpty) {
+                return const Icon(Icons.favorite, color: Colors.white);
+              } else {
+                return const Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                );
+              }
+            }), onPressed: () {
+              // ---------------------------------------------Add to favorites bloc
+              if (checkFavouriteStatus(index)) {
+                BlocProvider.of<FavouritesBloc>(context)
+                    .add(AddToFavourites(index));
 
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      duration: Duration(seconds: 1),
-                      elevation: 10,
-                      behavior: SnackBarBehavior.floating,
-                      content: Text('Song removed from Favourites')));
-                }
-              },
-            ),
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    duration: Duration(seconds: 1),
+                    behavior: SnackBarBehavior.floating,
+                    content: Text(
+                      'Song added to Favourites',
+                    )));
+              } else if (!checkFavouriteStatus(index)) {
+                //-----------------------------------------------remove from fav bloc
+
+                BlocProvider.of<FavouritesBloc>(context)
+                    .add(RemoveFromFavGeneral(index));
+
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    duration: Duration(seconds: 1),
+                    behavior: SnackBarBehavior.floating,
+                    content: Text(
+                      'song removed from favourites',
+                    )));
+              }
+            }),
             //---------------------------------playlist add button
             IconButton(
               icon: const Icon(

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
+import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/fav/fav_mode.dart';
+import 'package:hive_music_player/hive/model/recently_played/recently_model.dart';
 import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -66,10 +71,26 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
                     );
                   },
                 ));
+                final recentSong = RecentlyPlayed(
+                    widget.audioList[widget.index].title,
+                    widget.audioList[widget.index].artist,
+                    widget.audioList[widget.index].id,
+                    widget.audioList[widget.index].uri,
+                    widget.audioList[widget.index].duration);
 
-                globalMiniList.value.clear();
-                globalMiniList.value.addAll(widget.audioList);
-                globalMiniList.notifyListeners();
+                BlocProvider.of<RecentlyPlayedBloc>(context)
+                    .add(UpdateRecentlyplayed(recentSong: recentSong));
+
+                    //------------->>mostply played bloc
+                    BlocProvider.of<MostlyPlayedBloc>(context)
+                        .add(UpdateMostlyPLayed(widget.audioList[widget.index]));
+//------------------------------
+                        BlocProvider.of<MiniPlayerBloc>(context)
+                      .add(CloseMiniPlayer());
+
+                updatingList.value.clear();
+                updatingList.value.addAll(widget.audioList);
+                updatingList.notifyListeners();
               },
               child: SizedBox(
                 width: 200,
@@ -97,9 +118,8 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
             ),
             const Spacer(),
             IconButton(
-              icon: ValueListenableBuilder(
-                valueListenable: favNotifier,
-                builder: (context, favlist, child) {
+              icon: BlocBuilder<FavouritesBloc, FavouritesState>(
+                builder: (context, state) {
                   //here id and song list available.
                   Favourites currentSong = Favourites(
                       title: widget.audioList[widget.index].title,
@@ -108,7 +128,7 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
                       uri: widget.audioList[widget.index].uri,
                       duration: widget.audioList[widget.index].duration);
 
-                  if (favlist
+                  if (state.favlist
                       .where((fav) => fav.id == currentSong.id)
                       .isEmpty) {
                     return const Icon(Icons.favorite, color: Colors.white);
@@ -128,7 +148,10 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
                     element.id == widget.audioList[widget.index].id);
                 //---------------------------------------------------------------------
                 if (checkFavouriteStatus(getIndexSong)) {
-                  addToFavouritesDB(getIndexSong);
+                  // -----------------------------------------fav add bloc
+                  BlocProvider.of<FavouritesBloc>(context)
+                      .add(AddToFavourites(getIndexSong));
+
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       duration: Duration(milliseconds: 500),
                       behavior: SnackBarBehavior.floating,
@@ -136,7 +159,10 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
                         'Song added to Favourites',
                       )));
                 } else if (!checkFavouriteStatus(getIndexSong)) {
-                  removeFromFavouritesDb(getIndexSong);
+                  //-------------------------------------------------fav delete bloc here
+                  BlocProvider.of<FavouritesBloc>(context)
+                      .add(RemoveFromFavGeneral(getIndexSong));
+
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       duration: Duration(seconds: 1),
                       behavior: SnackBarBehavior.floating,

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
+import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
-import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
-import 'package:hive_music_player/hive/db_functions/mostly_played/moslty_played_function.dart';
-import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
-import 'package:hive_music_player/hive/db_functions/recentlyPlayed/recently_function.dart';
+
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/fav/fav_mode.dart';
 import 'package:hive_music_player/hive/model/recently_played/recently_model.dart';
@@ -13,7 +14,9 @@ import 'package:on_audio_query/on_audio_query.dart';
 
 //tile containing fav and delete function
 
-class PlaylistSongsTileCustom extends StatefulWidget {
+//----------------------------------------playlist song list
+
+class PlaylistSongsTileCustom extends StatelessWidget {
   const PlaylistSongsTileCustom(
       {super.key,
       required this.songlist,
@@ -24,12 +27,6 @@ class PlaylistSongsTileCustom extends StatefulWidget {
   final int index;
   final int playlistindex;
 
-  @override
-  State<PlaylistSongsTileCustom> createState() =>
-      _PlaylistSongsTileCustomState();
-}
-
-class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -52,7 +49,7 @@ class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
                     fit: BoxFit.cover,
                   ),
                 ),
-                id: widget.songlist[widget.index].id!,
+                id: songlist[index].id!,
                 type: ArtworkType.AUDIO),
             const SizedBox(width: 10),
             Expanded(
@@ -60,33 +57,43 @@ class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
                 onTap: () {
                   //----------------------------------------------click to play
                   final recentSong = RecentlyPlayed(
-                      widget.songlist[widget.index].title,
-                      widget.songlist[widget.index].artist,
-                      widget.songlist[widget.index].id,
-                      widget.songlist[widget.index].uri,
-                      widget.songlist[widget.index].duration);
-                  updateRecentPlay(recentSong);
-                  updateMostlyPlayedDB(widget.songlist[widget.index]);
+                      songlist[index].title,
+                      songlist[index].artist,
+                      songlist[index].id,
+                      songlist[index].uri,
+                      songlist[index].duration);
+
+                  //---------------------------recently played
+                  BlocProvider.of<RecentlyPlayedBloc>(context)
+                      .add(UpdateRecentlyplayed(recentSong: recentSong));
+
+                  //-------------------------->>mostply played
+
+                  BlocProvider.of<MostlyPlayedBloc>(context)
+                      .add(UpdateMostlyPLayed(songlist[index]));
+//-------------------
+                      BlocProvider.of<MiniPlayerBloc>(context)
+                      .add(CloseMiniPlayer());
 
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) {
                       return ScreenNowPlaying(
-                        songs: widget.songlist,
-                        index: widget.index,
+                        songs: songlist,
+                        index: index,
                       );
                     },
                   ));
                   //----------------------------------------------------update mini platyer list
 
-                  globalMiniList.value.clear();
-                  globalMiniList.value.addAll(widget.songlist);
-                  globalMiniList.notifyListeners();
+                  updatingList.value.clear();
+                  updatingList.value.addAll(songlist);
+                  updatingList.notifyListeners();
                 },
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.songlist[widget.index].title!,
+                      songlist[index].title!,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: const TextStyle(
@@ -95,7 +102,7 @@ class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
                           color: Colors.white),
                     ),
                     Text(
-                      widget.songlist[widget.index].artist!,
+                      songlist[index].artist!,
                       maxLines: 1,
                       style: const TextStyle(
                         color: Colors.grey,
@@ -108,18 +115,17 @@ class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
 
             //--------------------------------------------------favourite add button section
             IconButton(
-              icon: ValueListenableBuilder(
-                valueListenable: favNotifier,
-                builder: (context, favlist, child) {
+              icon: BlocBuilder<FavouritesBloc, FavouritesState>(
+                builder: (context, state) {
                   //here id and song list available.
                   Favourites currentSong = Favourites(
-                      title: widget.songlist[widget.index].title,
-                      artist: widget.songlist[widget.index].artist,
-                      id: widget.songlist[widget.index].id,
-                      uri: widget.songlist[widget.index].uri,
-                      duration: widget.songlist[widget.index].duration);
+                      title: songlist[index].title,
+                      artist: songlist[index].artist,
+                      id: songlist[index].id,
+                      uri: songlist[index].uri,
+                      duration: songlist[index].duration);
 
-                  if (favlist
+                  if (state.favlist
                       .where((fav) => fav.id == currentSong.id)
                       .isEmpty) {
                     return const Icon(Icons.favorite, color: Colors.white);
@@ -135,11 +141,13 @@ class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
                 //------------------------get index of song from all songs db and compare with playlist
                 final allbox = MusicBox.getInstance();
                 final allSongsList = allbox.values.toList();
-                int getIndexSong = allSongsList.indexWhere((element) =>
-                    element.id == widget.songlist[widget.index].id);
+                int getIndexSong = allSongsList
+                    .indexWhere((element) => element.id == songlist[index].id);
                 //---------------------------------------------------------------------
                 if (checkFavouriteStatus(getIndexSong)) {
-                  addToFavouritesDB(getIndexSong);
+                  //--------------------------------------------------fav bloc here
+                  BlocProvider.of<FavouritesBloc>(context)
+                      .add(AddToFavourites(getIndexSong));
 
                   //snackbar
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -149,8 +157,9 @@ class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
                         'Song added to Favourites',
                       )));
                 } else if (!checkFavouriteStatus(getIndexSong)) {
-                  //remove function
-                  removeFromFavouritesDb(getIndexSong);
+                  //-------------------------------------------------fav delete bloc here
+                  BlocProvider.of<FavouritesBloc>(context)
+                      .add(RemoveFromFavGeneral(getIndexSong));
 
                   //snackbar
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -169,9 +178,12 @@ class _PlaylistSongsTileCustomState extends State<PlaylistSongsTileCustom> {
               ),
               onPressed: () {
                 //-------------------------------------------------bloc delete from playlist
-                BlocProvider.of<PlaylistBloc>(context).add(
-                    DeleteFromPlaylist(widget.playlistindex, widget.index));
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('song removed'),duration: Duration(seconds: 1),));
+                BlocProvider.of<PlaylistBloc>(context)
+                    .add(DeleteFromPlaylist(playlistindex, index));
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('song removed'),
+                  duration: Duration(seconds: 1),
+                ));
               },
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_music_player/hive/model/all_songs/model.dart';
 part 'recently_model.g.dart';
 
 String recentlyDbName = 'RecentlyPlayed';
@@ -30,3 +31,20 @@ class RecentlyPlayedBox {
     return _box ??= Hive.box(recentlyDbName);
   }
 }
+
+//use to convert recentlyplayed object to audio model before sending to playing screen.
+List<AudioModel> convertRecentlyPlayedToAudioModel(
+    List<RecentlyPlayed> recentlyList) {
+  List<AudioModel> audioList = [];
+
+  for (var song in recentlyList) {
+    audioList.add(AudioModel(
+        title: song.title,
+        artist: song.artist,
+        id: song.id,
+        uri: song.uri,
+        duration: song.duration));
+  }
+  return audioList;
+}
+

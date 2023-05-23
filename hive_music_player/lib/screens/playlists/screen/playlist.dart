@@ -1,9 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/playlist/playlist_model.dart';
 import 'package:hive_music_player/screens/home/screen_home.dart';
@@ -12,7 +14,7 @@ import 'package:hive_music_player/screens/playlists/screen/playlist_song_selecti
 import 'package:hive_music_player/screens/playlists/widgets/playlist_tile.dart';
 
 class ScreenPlaylist extends StatelessWidget {
-  ScreenPlaylist(
+  const ScreenPlaylist(
       {super.key,
       required this.playlistName,
       required this.playlistSongLists,
@@ -28,14 +30,12 @@ class ScreenPlaylist extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
         child: Scaffold(
-            bottomNavigationBar: ValueListenableBuilder(
-              valueListenable: miniPlayerStatusNotifier,
-              builder: (context, value, child) {
-                if (value == false) {
+            bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
+              builder: (context, state) {
+                if (state.showPlayer == false) {
                   return const SizedBox();
-                } else {
-                  return const MiniPlayer();
                 }
+                return const MiniPlayer();
               },
             ),
             backgroundColor: mainColor,
@@ -44,6 +44,7 @@ class ScreenPlaylist extends StatelessWidget {
               title: Text(playlistName),
               centerTitle: true,
               actions: [
+                //--------------------------------------------------------add songs to plylist
                 IconButton(
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
@@ -60,11 +61,17 @@ class ScreenPlaylist extends StatelessWidget {
             ),
             body: Padding(
               padding: const EdgeInsets.all(16.0),
+              //------------------------------------------------------bloc here
               child: BlocBuilder<PlaylistBloc, PlaylistState>(
                 builder: (context, state) {
+
+                  log(state.playlists[playlistIndex].playlistSongs.length.toString());
                   if (state.playlists[playlistIndex].playlistSongs.isEmpty) {
                     return const Center(
-                      child: Text('No Songs',style: TextStyle(color: Colors.white),),
+                      child: Text(
+                        'No Songs',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     );
                   } else {
                     return ListView.separated(

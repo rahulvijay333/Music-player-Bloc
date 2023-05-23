@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/hive/model/all_songs/model.dart';
 
 import 'package:hive_music_player/screens/playlists/widgets/add_song_tile.dart';
 
 class ScreenPlaylistSongSelection extends StatelessWidget {
-  ScreenPlaylistSongSelection({super.key, required this.playlistIndex});
+  const ScreenPlaylistSongSelection({super.key, required this.playlistIndex});
 
   final int playlistIndex;
 
@@ -27,7 +26,6 @@ class ScreenPlaylistSongSelection extends StatelessWidget {
               builder: (context, state) {
                 return ListView.separated(
                     itemBuilder: (context, index) {
-                      // final list = box.values.toList();
                       return PlaylistSongSelectTile(
                         allSongs: state.allsongs,
                         indexSong: index,

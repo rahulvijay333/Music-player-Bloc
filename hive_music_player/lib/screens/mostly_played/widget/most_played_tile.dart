@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
-import 'package:hive_music_player/hive/db_functions/mostly_played/moslty_played_function.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
+import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/fav/fav_mode.dart';
 import 'package:hive_music_player/hive/model/mostply_played/mosltly_played_model.dart';
+import 'package:hive_music_player/hive/model/recently_played/recently_model.dart';
 import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -67,11 +71,34 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
                         );
                       },
                     ));
+                    final recentSong = RecentlyPlayed(
+                        audiolist[widget.index].title,
+                        audiolist[widget.index].artist,
+                        audiolist[widget.index].id,
+                        audiolist[widget.index].uri,
+                        audiolist[widget.index].duration);
+
+                    final mostSong = AudioModel(
+                        title: audiolist[widget.index].title,
+                        artist: audiolist[widget.index].artist,
+                        id: audiolist[widget.index].id,
+                        uri: audiolist[widget.index].uri,
+                        duration: audiolist[widget.index].duration);
+
+//------------->>recently played bloc
+                    BlocProvider.of<RecentlyPlayedBloc>(context)
+                        .add(UpdateRecentlyplayed(recentSong: recentSong));
+//------------->>mostply played bloc
+                    BlocProvider.of<MostlyPlayedBloc>(context)
+                        .add(UpdateMostlyPLayed(mostSong));
+//------------------------------
+                        BlocProvider.of<MiniPlayerBloc>(context)
+                      .add(CloseMiniPlayer());
 
                     //update mini player list
-                    globalMiniList.value.clear();
-                    globalMiniList.value.addAll(audiolist);
-                    globalMiniList.notifyListeners();
+                    updatingList.value.clear();
+                    updatingList.value.addAll(audiolist);
+                    updatingList.notifyListeners();
                   },
                   child: Text(
                     widget.mostlyList[widget.index].title!,
@@ -84,9 +111,8 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
 
               //-----------------------------------------------favourite function here-----------
               IconButton(
-                icon: ValueListenableBuilder(
-                  valueListenable: favNotifier,
-                  builder: (context, favlist, child) {
+                icon: BlocBuilder<FavouritesBloc, FavouritesState>(
+                  builder: (context, state) {
                     //here id and song list available.
                     Favourites currentSong = Favourites(
                         title: widget.mostlyList[widget.index].title,
@@ -95,7 +121,7 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
                         uri: widget.mostlyList[widget.index].uri,
                         duration: widget.mostlyList[widget.index].duration);
 
-                    if (favlist
+                    if (state.favlist
                         .where((fav) => fav.id == currentSong.id)
                         .isEmpty) {
                       return const Icon(Icons.favorite, color: Colors.white);
@@ -115,7 +141,10 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
                       element.id == widget.mostlyList[widget.index].id);
                   //---------------------------------------------------------------------
                   if (checkFavouriteStatus(getIndexSong)) {
-                    addToFavouritesDB(getIndexSong);
+                    // addToFavouritesDB(getIndexSong);
+                    //------------------------------------------------fav bloc here
+                    BlocProvider.of<FavouritesBloc>(context)
+                        .add(AddToFavourites(getIndexSong));
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         duration: Duration(seconds: 1),
                         behavior: SnackBarBehavior.floating,
@@ -123,7 +152,10 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
                           'Song added to Favourites',
                         )));
                   } else if (!checkFavouriteStatus(getIndexSong)) {
-                    removeFromFavouritesDb(getIndexSong);
+                    // removeFromFavouritesDb(getIndexSong);
+                    //--------------------------------------------------fav bloc here
+                    BlocProvider.of<FavouritesBloc>(context)
+                        .add(RemoveFromFavGeneral(getIndexSong));
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         duration: Duration(seconds: 1),
                         behavior: SnackBarBehavior.floating,

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
 import 'package:hive_music_player/hive/model/playlist/playlist_model.dart';
 import 'package:hive_music_player/hive/model/playlist_con/concatenation.dart';
 
@@ -70,7 +69,7 @@ showPlaylistDialog(BuildContext context, int songIndex) {
                               //     songIndex: songIndex,
                               //     context: context);
 
-                              // BlocProvider.of<PlaylistBloc>(context).add(AddToPlaylist(index, songIndex, context));
+                             BlocProvider.of<PlaylistBloc>(context).add(AddToPlaylist(index, songIndex, context));
 
                               await Future.delayed(const Duration(seconds: 1));
                               Navigator.of(context).pop();
@@ -123,8 +122,6 @@ showPlaylistDialog(BuildContext context, int songIndex) {
     },
   );
 }
-
-
 
 //-------------------------------------------------------------create new
 createPlayListDialoge(BuildContext context) {

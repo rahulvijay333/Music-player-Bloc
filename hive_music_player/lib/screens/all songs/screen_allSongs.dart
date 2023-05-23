@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
 
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/screens/all%20songs/widgets/tile_all_songs.dart';
-import 'package:hive_music_player/screens/home/screen_home.dart';
 import 'package:hive_music_player/screens/miniPlayer/mini_player.dart';
-import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 import 'package:hive_music_player/screens/search/screen_search.dart';
 
 class ScreenAllSongs extends StatelessWidget {
@@ -26,19 +25,12 @@ class ScreenAllSongs extends StatelessWidget {
       child: BlocBuilder<AllSongsBloc, AllSongsState>(
         builder: (context, state) {
           return Scaffold(
-            bottomNavigationBar: ValueListenableBuilder(
-              valueListenable: globalMiniList,
-              builder: (context, value, child) {
-                return ValueListenableBuilder(
-                  valueListenable: miniPlayerStatusNotifier,
-                  builder: (context, value, child) {
-                    if (miniPlayerStatusNotifier.value) {
-                      return const MiniPlayer();
-                    } else {
-                      return const SizedBox();
-                    }
-                  },
-                );
+            bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
+              builder: (context, state) {
+                if (state.showPlayer == false || state.playingList.isEmpty) {
+                  return const SizedBox();
+                }
+                return const MiniPlayer();
               },
             ),
             backgroundColor: mainColor,
@@ -65,19 +57,19 @@ class ScreenAllSongs extends StatelessWidget {
 
                   //------------------------------------------------------song list
                   ? ListView.separated(
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return AllSongTileWidget(
-                                songlist: state.allsongs,
-                                index: index,
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              return const SizedBox(
-                                height: 5,
-                              );
-                            },
-                            itemCount: state.allsongs.length)
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return AllSongTileWidget(
+                          songlist: state.allsongs,
+                          index: index,
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const SizedBox(
+                          height: 5,
+                        );
+                      },
+                      itemCount: state.allsongs.length)
                   //---------------------------------------show when No songs available
                   : const Center(
                       child: Text(

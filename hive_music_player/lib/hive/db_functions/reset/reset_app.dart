@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
-import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/hive/db_functions/splash/splash_functions.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/fav/fav_mode.dart';
@@ -12,8 +13,10 @@ import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 import 'package:hive_music_player/screens/splash/screen_splash.dart';
 
 resetApp(BuildContext context) async {
-  final mostplayedbox = MostplePlayedBox.getInstance();
-  await mostplayedbox.clear();
+  // final mostplayedbox = MostplePlayedBox.getInstance();
+  // await mostplayedbox.clear();
+
+  BlocProvider.of<MostlyPlayedBloc>(context).add(ClearMostlyPlayed());
   final recentlyplayedBox = RecentlyPlayedBox.getinstance();
   await recentlyplayedBox.clear();
 
@@ -28,11 +31,10 @@ resetApp(BuildContext context) async {
 
   await refreshDatabaseFunction();
 
-  favNotifier.value.clear();
-  // playlistNotifier.value.clear();
+  updatingList.value.clear();
 
   justAudioPlayerObject.stop();
-  globalMiniList.value.clear();
+  BlocProvider.of<MiniPlayerBloc>(context).add(CloseMiniPlayer());
 
   Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
     builder: (context) {

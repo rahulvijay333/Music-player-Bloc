@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/hive/db_functions/playlist/playlist_functions.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
 import 'package:hive_music_player/hive/model/playlist/playlist_model.dart';
 import 'package:hive_music_player/hive/model/playlist_con/concatenation.dart';
@@ -11,6 +11,9 @@ import 'package:hive_music_player/screens/home/screen_home.dart';
 import 'package:hive_music_player/screens/miniPlayer/mini_player.dart';
 import 'package:hive_music_player/screens/playlists/screen/playlist.dart';
 import 'package:hive_music_player/screens/playlists/widgets/play_list_card.dart';
+
+
+//-------------------------------------------------------list of playlist screen
 
 class ScreenPlaylists extends StatelessWidget {
   ScreenPlaylists({super.key});
@@ -24,16 +27,14 @@ class ScreenPlaylists extends StatelessWidget {
     BlocProvider.of<PlaylistBloc>(context).add(GetAllPlaylist());
     return SafeArea(
       child: Scaffold(
-          bottomNavigationBar: ValueListenableBuilder(
-            valueListenable: miniPlayerStatusNotifier,
-            builder: (context, value, child) {
-              if (value == false) {
-                return const SizedBox();
-              } else {
-                return const MiniPlayer();
-              }
-            },
-          ),
+        bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
+          builder: (context, state) {
+            if (state.showPlayer == false) {
+              return const SizedBox();
+            }
+            return const MiniPlayer();
+          },
+        ),
           backgroundColor: mainColor,
           appBar: AppBar(
             title: const Text(

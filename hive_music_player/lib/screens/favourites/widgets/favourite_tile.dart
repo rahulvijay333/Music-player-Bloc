@@ -1,16 +1,21 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
+import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
+import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 
 import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/hive/db_functions/favourites/fav_function.dart';
-import 'package:hive_music_player/hive/db_functions/mostly_played/moslty_played_function.dart';
-import 'package:hive_music_player/hive/db_functions/recentlyPlayed/recently_function.dart';
 import 'package:hive_music_player/hive/model/all_songs/model.dart';
+import 'package:hive_music_player/hive/model/fav/fav_mode.dart';
 import 'package:hive_music_player/hive/model/recently_played/recently_model.dart';
 
 import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
-class FavouriteTileCustom extends StatefulWidget {
+class FavouriteTileCustom extends StatelessWidget {
   const FavouriteTileCustom(
       {super.key,
       required this.songName,
@@ -24,14 +29,9 @@ class FavouriteTileCustom extends StatefulWidget {
   final Size size;
 
   @override
-  State<FavouriteTileCustom> createState() => _FavouriteTileCustomState();
-}
-
-class _FavouriteTileCustomState extends State<FavouriteTileCustom> {
-  @override
   Widget build(BuildContext context) {
     return Container(
-      height: widget.size.height * 0.1,
+      height: size.height * 0.1,
       decoration: BoxDecoration(
           gradient: LinearGradient(
               colors: [Colors.black.withOpacity(0), mainColor],
@@ -58,7 +58,7 @@ class _FavouriteTileCustomState extends State<FavouriteTileCustom> {
                     fit: BoxFit.cover,
                   ),
                 ),
-                id: widget.id,
+                id: id,
                 type: ArtworkType.AUDIO),
             const SizedBox(
               width: 10,
@@ -69,33 +69,43 @@ class _FavouriteTileCustomState extends State<FavouriteTileCustom> {
               child: GestureDetector(
                 onTap: () async {
                   //-----------------------------------------------convertion into audiomodel music collections concatenation purpose
-                  final favlist = favouritesDbBox.values.toList();
+                  final favlist = FavouriteBox.getinstance().values.toList();
 
                   List<AudioModel> favCollections =
                       convertToAudioModel(favlist);
 
                   final recentSong = RecentlyPlayed(
-                      favCollections[widget.index].title,
-                      favCollections[widget.index].artist,
-                      favCollections[widget.index].id,
-                      favCollections[widget.index].uri,
-                      favCollections[widget.index].duration);
-                  updateRecentPlay(recentSong);
-                  updateMostlyPlayedDB(favCollections[widget.index]);
-
+                      favCollections[index].title,
+                      favCollections[index].artist,
+                      favCollections[index].id,
+                      favCollections[index].uri,
+                      favCollections[index].duration);
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) {
                       return ScreenNowPlaying(
                         songs: favCollections,
-                        index: widget.index,
+                        index: index,
                       );
                     },
                   ));
 
+                  //--------------------recently played bloc
+                  BlocProvider.of<RecentlyPlayedBloc>(context)
+                      .add(UpdateRecentlyplayed(recentSong: recentSong));
+
+                  //--------------------mostply played bloc
+
+                  BlocProvider.of<MostlyPlayedBloc>(context)
+                      .add(UpdateMostlyPLayed(favCollections[index]));
+
+                  //-------------mini close
+                  BlocProvider.of<MiniPlayerBloc>(context)
+                      .add(CloseMiniPlayer());
+
                   //update mini player list
-                  globalMiniList.value.clear();
-                  globalMiniList.value.addAll(favCollections);
-                  globalMiniList.notifyListeners();
+                  updatingList.value.clear();
+                  updatingList.value.addAll(favCollections);
+                  updatingList.notifyListeners();
                 },
                 child: SizedBox(
                   child: Column(
@@ -103,7 +113,7 @@ class _FavouriteTileCustomState extends State<FavouriteTileCustom> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        widget.songName,
+                        songName,
                         maxLines: 1,
                         style: const TextStyle(
                           fontSize: 18,
@@ -116,27 +126,20 @@ class _FavouriteTileCustomState extends State<FavouriteTileCustom> {
               ),
             ),
             IconButton(
-              onPressed: () {
-                //--------------------------------------------- delete function  to remove song
-                deleteFromFavouritesDb(widget.id, context);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    duration: Duration(seconds: 1),
-                    content: Text('Song removed from favourites')));
-              },
-              icon: ValueListenableBuilder(
-                valueListenable: favNotifier,
-                builder: (context, favlist, child) {
-                  if (favlist.where((fav) => fav.id == widget.id).isEmpty) {
-                    return const Icon(Icons.favorite, color: Colors.white);
-                  } else {
-                    return const Icon(
-                      Icons.favorite,
-                      color: Colors.red,
-                    );
-                  }
+                onPressed: () {
+                  //--------------------------------------------- delete function  to remove song
+
+                  BlocProvider.of<FavouritesBloc>(context)
+                      .add(DeleteFromFavourites(id));
+
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      duration: Duration(seconds: 1),
+                      content: Text('Song removed from favourites')));
                 },
-              ),
-            )
+                icon: const Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                ))
           ],
         ),
       ),
