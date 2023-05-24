@@ -20,31 +20,30 @@ void main(List<String> args) async {
   if (!Hive.isAdapterRegistered(AudioModelAdapter().typeId)) {
     Hive.registerAdapter(AudioModelAdapter());
   }
+  await Hive.openBox<AudioModel>(musicsDbName);
 
   if (!Hive.isAdapterRegistered(RecentlyPlayedAdapter().typeId)) {
     Hive.registerAdapter(RecentlyPlayedAdapter());
   }
+  await Hive.openBox<RecentlyPlayed>(recentlyDbName);
 
   if (!Hive.isAdapterRegistered(FavouritesAdapter().typeId)) {
     Hive.registerAdapter(FavouritesAdapter());
   }
+  await Hive.openBox<Favourites>(favBoxName);
 
   if (!Hive.isAdapterRegistered(MostlyPlayedAdapter().typeId)) {
     Hive.registerAdapter(MostlyPlayedAdapter());
   }
+  await Hive.openBox<MostlyPlayed>(mostlyPlayedDbName);
 
   if (!Hive.isAdapterRegistered(PlaylistAdapter().typeId)) {
     Hive.registerAdapter(PlaylistAdapter());
   }
 
   //open database for all
-  await Hive.openBox<AudioModel>(musicsDbName);
+
   await Hive.openBox<Playlist>(playlistDbName);
-
-  await Hive.openBox<Favourites>(favBoxName);
-  await Hive.openBox<RecentlyPlayed>(recentlyDbName);
-  await Hive.openBox<MostlyPlayed>(mostlyPlayedDbName);
-
 
   runApp(const MyApp());
 }

@@ -13,10 +13,10 @@ import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 import 'package:hive_music_player/screens/splash/screen_splash.dart';
 
 resetApp(BuildContext context) async {
-  // final mostplayedbox = MostplePlayedBox.getInstance();
-  // await mostplayedbox.clear();
+  final mostplayedbox = MostplePlayedBox.getInstance();
+  await mostplayedbox.clear();
 
-  BlocProvider.of<MostlyPlayedBloc>(context).add(ClearMostlyPlayed());
+ 
   final recentlyplayedBox = RecentlyPlayedBox.getinstance();
   await recentlyplayedBox.clear();
 

@@ -31,7 +31,7 @@ class ScreenHome extends StatefulWidget {
 }
 
 class _ScreenHomeState extends State<ScreenHome> {
-  final recentBox = RecentlyPlayedBox.getinstance();
+ 
 
   @override
   void didChangeDependencies() {

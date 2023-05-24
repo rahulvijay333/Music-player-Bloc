@@ -1,32 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
 import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
 import 'package:hive_music_player/hive/model/mostply_played/mosltly_played_model.dart';
-import 'package:hive_music_player/screens/home/screen_home.dart';
 import 'package:hive_music_player/screens/miniPlayer/mini_player.dart';
 import 'package:hive_music_player/screens/mostly_played/widget/most_played_tile.dart';
-import 'package:hive_music_player/screens/now_playing/screen_now_playing.dart';
 
 class ScreenMostlyPlayed extends StatelessWidget {
-  ScreenMostlyPlayed({super.key});
-
-  final mostbox = MostplePlayedBox.getInstance();
+  const ScreenMostlyPlayed({super.key});
 
   @override
   Widget build(BuildContext context) {
+    BlocProvider.of<MostlyPlayedBloc>(context).add(GetMostlyPlayed());
     return SafeArea(
         child: Scaffold(
-        bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
-          builder: (context, state) {
-            if (state.showPlayer == false) {
-              return const SizedBox();
-            }
-            return const MiniPlayer();
-          },
-        ),
+            bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
+              builder: (context, state) {
+                if (state.showPlayer == false) {
+                  return const SizedBox();
+                }
+                return const MiniPlayer();
+              },
+            ),
             backgroundColor: mainColor,
             appBar: AppBar(
               title: const Text('Mostly Played'),
