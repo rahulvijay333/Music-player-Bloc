@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hive_music_player/hive/model/all_songs/model.dart';
+import 'package:hive_music_player/domain/model/all_songs/model.dart';
 import 'package:meta/meta.dart';
 
 part 'all_songs_event.dart';

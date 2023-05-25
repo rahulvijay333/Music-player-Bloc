@@ -7,12 +7,12 @@ import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
 import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
 import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
-import 'package:hive_music_player/screens/splash/screen_splash.dart';
-import 'hive/model/fav/fav_mode.dart';
-import 'hive/model/all_songs/model.dart';
-import 'hive/model/mostply_played/mosltly_played_model.dart';
-import 'hive/model/playlist/playlist_model.dart';
-import 'hive/model/recently_played/recently_model.dart';
+import 'package:hive_music_player/presentation/splash/screen_splash.dart';
+import 'domain/model/fav/fav_mode.dart';
+import 'domain/model/all_songs/model.dart';
+import 'domain/model/mostply_played/mosltly_played_model.dart';
+import 'domain/model/playlist/playlist_model.dart';
+import 'domain/model/recently_played/recently_model.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();

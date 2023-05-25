@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:hive_music_player/hive/model/all_songs/model.dart';
-import 'package:hive_music_player/hive/model/mostply_played/mosltly_played_model.dart';
+import 'package:hive_music_player/domain/model/all_songs/model.dart';
+import 'package:hive_music_player/domain/model/mostply_played/mosltly_played_model.dart';
 import 'package:meta/meta.dart';
 
 part 'mostly_played_event.dart';
