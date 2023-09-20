@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -79,10 +80,9 @@ class ScreenAllSongs extends StatelessWidget {
                                 ? Container(
                                     width: double.maxFinite,
                                     height: double.maxFinite,
-                                    child: Scrollbar(
-                                      trackVisibility: true,
-                                      thumbVisibility: true,
+                                    child: CupertinoScrollbar(
                                       controller: scrollController,
+                                      thumbVisibility: true,
                                       child: ListView.separated(
                                           controller: scrollController,
                                           physics:

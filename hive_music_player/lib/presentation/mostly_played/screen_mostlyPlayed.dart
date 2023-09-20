@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
@@ -59,8 +60,9 @@ class ScreenMostlyPlayed extends StatelessWidget {
                         } else {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Scrollbar(
-                              controller: scrollController,
+                            child: CupertinoScrollbar(
+                                      controller: scrollController,
+                                      thumbVisibility: true,
 
                               child: ListView.separated(
                                   controller: scrollController,

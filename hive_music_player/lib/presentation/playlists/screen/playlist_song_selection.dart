@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
@@ -25,10 +26,9 @@ class ScreenPlaylistSongSelection extends StatelessWidget {
             padding: const EdgeInsets.all(15.0),
             child: BlocBuilder<AllSongsBloc, AllSongsState>(
               builder: (context, state) {
-                return Scrollbar(
-                  controller: scrollController,
-                  thumbVisibility: true,
-                  trackVisibility: true,
+                return CupertinoScrollbar(
+                                      controller: scrollController,
+                                      thumbVisibility: true,
                   child: ListView.separated(
                     controller: scrollController,
                       itemBuilder: (context, index) {

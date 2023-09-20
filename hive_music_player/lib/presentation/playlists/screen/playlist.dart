@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -90,8 +91,9 @@ class ScreenPlaylist extends StatelessWidget {
                               ),
                             );
                           } else {
-                            return Scrollbar(
-                              controller: scrollController,
+                            return CupertinoScrollbar(
+                                      controller: scrollController,
+                                      thumbVisibility: true,
                               child: ListView.separated(
                                   controller: scrollController,
                                   shrinkWrap: true,

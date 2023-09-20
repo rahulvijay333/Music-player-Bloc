@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
@@ -51,10 +52,9 @@ class ScreenFavourtites extends StatelessWidget {
                                 padding: const EdgeInsets.all(16),
                                 child: SizedBox(
                                   width: double.infinity,
-                                  child: Scrollbar(
-                                    thumbVisibility: true,
-                                    trackVisibility: true,
-                                    controller: scrollController,
+                                  child: CupertinoScrollbar(
+                                      controller: scrollController,
+                                      thumbVisibility: true,
                                     child: ListView.separated(
                                         controller: scrollController,
                                         physics: const BouncingScrollPhysics(),
