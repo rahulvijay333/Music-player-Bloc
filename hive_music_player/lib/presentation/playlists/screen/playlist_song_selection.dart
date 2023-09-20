@@ -6,9 +6,10 @@ import 'package:hive_music_player/common/common.dart';
 import 'package:hive_music_player/presentation/playlists/widgets/add_song_tile.dart';
 
 class ScreenPlaylistSongSelection extends StatelessWidget {
-  const ScreenPlaylistSongSelection({super.key, required this.playlistIndex});
+  ScreenPlaylistSongSelection({super.key, required this.playlistIndex});
 
   final int playlistIndex;
+  final ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -24,18 +25,27 @@ class ScreenPlaylistSongSelection extends StatelessWidget {
             padding: const EdgeInsets.all(15.0),
             child: BlocBuilder<AllSongsBloc, AllSongsState>(
               builder: (context, state) {
-                return ListView.separated(
-                    itemBuilder: (context, index) {
-                      return PlaylistSongSelectTile(
-                        allSongs: state.allsongs,
-                        indexSong: index,
-                        playlistIndex: playlistIndex,
-                      );
-                    },
-                    separatorBuilder: (context, index) {
-                      return const Divider();
-                    },
-                    itemCount: state.allsongs.length);
+                return Scrollbar(
+                  controller: scrollController,
+                  thumbVisibility: true,
+                  trackVisibility: true,
+                  child: ListView.separated(
+                    controller: scrollController,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: PlaylistSongSelectTile(
+                            allSongs: state.allsongs,
+                            indexSong: index,
+                            playlistIndex: playlistIndex,
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Divider();
+                      },
+                      itemCount: state.allsongs.length),
+                );
               },
             ),
           )),

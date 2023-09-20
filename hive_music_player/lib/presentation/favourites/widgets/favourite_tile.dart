@@ -1,18 +1,16 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
 import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
 import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
-import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
+import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
 
 import 'package:hive_music_player/common/common.dart';
 import 'package:hive_music_player/domain/model/all_songs/model.dart';
 import 'package:hive_music_player/domain/model/fav/fav_mode.dart';
 import 'package:hive_music_player/domain/model/recently_played/recently_model.dart';
+import 'package:hive_music_player/presentation/home/screen_home.dart';
 
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class FavouriteTileCustom extends StatelessWidget {
@@ -80,14 +78,19 @@ class FavouriteTileCustom extends StatelessWidget {
                       favCollections[index].id,
                       favCollections[index].uri,
                       favCollections[index].duration);
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) {
-                      return ScreenNowPlaying(
-                        songs: favCollections,
-                        index: index,
-                      );
-                    },
-                  ));
+
+//--------new update-----<<<<<<<<<<<<<<<<<<<<<<<<<
+                  context.read<NowPlayingBloc>().add(PlaySelectedSong(
+                      index: index,
+                      songs: favCollections,
+                      audioObj: justAudioPlayerObjectNew));
+
+                  nowPlayingIndex.value = index;
+                  nowPlayingIndex.notifyListeners();
+                  miniPlayerActive.value = true;
+                  showingMiniPlayer.value = false;
+
+                  //<<<<<<<<<_______________________________________________________new update
 
                   //--------------------recently played bloc
                   BlocProvider.of<RecentlyPlayedBloc>(context)
@@ -97,15 +100,6 @@ class FavouriteTileCustom extends StatelessWidget {
 
                   BlocProvider.of<MostlyPlayedBloc>(context)
                       .add(UpdateMostlyPLayed(favCollections[index]));
-
-                  //-------------mini close
-                  BlocProvider.of<MiniPlayerBloc>(context)
-                      .add(CloseMiniPlayer());
-
-                  //update mini player list
-                  updatingList.value.clear();
-                  updatingList.value.addAll(favCollections);
-                  updatingList.notifyListeners();
                 },
                 child: SizedBox(
                   child: Column(
@@ -134,6 +128,8 @@ class FavouriteTileCustom extends StatelessWidget {
 
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       duration: Duration(seconds: 1),
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.all(8),
                       content: Text('Song removed from favourites')));
                 },
                 icon: const Icon(

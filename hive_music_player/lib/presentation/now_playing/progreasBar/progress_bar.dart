@@ -1,10 +1,12 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/presentation/miniPlayer/mini_player.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CustomProgressBar extends StatefulWidget {
-  const CustomProgressBar({super.key});
+
+  final AudioPlayer justAudioPlayerObject;
+  const CustomProgressBar({super.key, required this.justAudioPlayerObject});
 
   @override
   State<CustomProgressBar> createState() => _CustomProgressBarState();
@@ -14,8 +16,8 @@ class _CustomProgressBarState extends State<CustomProgressBar> {
   //combine duration to class obj for progress bar
   Stream<DurationState> get _durationStateStream =>
       Rx.combineLatest2<Duration, Duration?, DurationState>(
-          justAudioPlayerObject.positionStream,
-          justAudioPlayerObject.durationStream,
+          widget.justAudioPlayerObject.positionStream,
+          widget.justAudioPlayerObject.durationStream,
           (position, duration) => DurationState(
               position: position, total: duration ?? Duration.zero));
   @override
@@ -36,7 +38,7 @@ class _CustomProgressBarState extends State<CustomProgressBar> {
             progressBarColor: Colors.black,
             thumbColor: Colors.black,
             onSeek: (duration) {
-              justAudioPlayerObject.seek(duration);
+              widget.justAudioPlayerObject.seek(duration);
             },
           );
         },

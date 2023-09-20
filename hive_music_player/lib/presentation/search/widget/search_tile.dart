@@ -4,10 +4,11 @@ import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.da
 import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
 import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
 import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
+import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:hive_music_player/domain/model/all_songs/model.dart';
 import 'package:hive_music_player/domain/model/fav/fav_mode.dart';
 import 'package:hive_music_player/domain/model/recently_played/recently_model.dart';
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
+import 'package:hive_music_player/presentation/home/screen_home.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class SearchTileWidget extends StatefulWidget {
@@ -63,14 +64,18 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
             GestureDetector(
               onTap: () {
                 //--------------------------------------------------now playing
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) {
-                    return ScreenNowPlaying(
-                      songs: widget.audioList,
-                      index: widget.index,
-                    );
-                  },
-                ));
+
+                FocusScope.of(context).unfocus();
+                //---<<<<-------------------------------------------------------------------latest update
+                context.read<NowPlayingBloc>().add(PlaySelectedSong(
+                    index: widget.index,
+                    songs: widget.audioList,
+                    audioObj: justAudioPlayerObjectNew));
+
+                nowPlayingIndex.value = widget.index;
+                nowPlayingIndex.notifyListeners();
+                miniPlayerActive.value = true;
+                showingMiniPlayer.value = false;
                 final recentSong = RecentlyPlayed(
                     widget.audioList[widget.index].title,
                     widget.audioList[widget.index].artist,
@@ -81,16 +86,11 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
                 BlocProvider.of<RecentlyPlayedBloc>(context)
                     .add(UpdateRecentlyplayed(recentSong: recentSong));
 
-                    //------------->>mostply played bloc
-                    BlocProvider.of<MostlyPlayedBloc>(context)
-                        .add(UpdateMostlyPLayed(widget.audioList[widget.index]));
+                //------------->>mostply played bloc
+                BlocProvider.of<MostlyPlayedBloc>(context)
+                    .add(UpdateMostlyPLayed(widget.audioList[widget.index]));
 //------------------------------
-                        BlocProvider.of<MiniPlayerBloc>(context)
-                      .add(CloseMiniPlayer());
-
-                updatingList.value.clear();
-                updatingList.value.addAll(widget.audioList);
-                updatingList.notifyListeners();
+                BlocProvider.of<MiniPlayerBloc>(context).add(CloseMiniPlayer());
               },
               child: SizedBox(
                 width: 200,

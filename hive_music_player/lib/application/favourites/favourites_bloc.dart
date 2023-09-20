@@ -12,7 +12,7 @@ class FavouritesBloc extends Bloc<FavouritesEvent, FavouritesState> {
     on<GetFavouritesSongs>((event, emit) {
       emit(FavouritesState([], true));
 
-      print('Bloc fav refreshing');
+     
       final favdb = FavouriteBox.getinstance();
 
       final favlist = favdb.values.toList();

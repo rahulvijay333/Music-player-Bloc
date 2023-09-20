@@ -1,18 +1,15 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
 import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
-import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
+import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
+import 'package:hive_music_player/common/widgets/app_bar_custom.dart';
 import 'package:hive_music_player/common/widgets/menu_tile.dart';
 import 'package:hive_music_player/domain/db_functions/splash/splash_functions.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
 import 'package:hive_music_player/domain/model/recently_played/recently_model.dart';
 import 'package:hive_music_player/presentation/all%20songs/screen_allSongs.dart';
 import 'package:hive_music_player/presentation/favourites/screen_favourites.dart';
-import 'package:hive_music_player/presentation/miniPlayer/mini_player.dart';
 import 'package:hive_music_player/presentation/mostly_played/screen_mostlyPlayed.dart';
 import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
 import 'package:hive_music_player/presentation/playlists/screen/screen_playlits.dart';
@@ -22,6 +19,10 @@ import 'package:just_audio/just_audio.dart';
 import 'widgets/recentlyPlayed_tile.dart';
 
 ValueNotifier<int> nowPlayingIndex = ValueNotifier(0);
+final AudioPlayer justAudioPlayerObjectNew = AudioPlayer();
+
+ValueNotifier<bool> showingMiniPlayer = ValueNotifier(false);
+ValueNotifier<bool> miniPlayerActive = ValueNotifier(false);
 
 class ScreenHome extends StatefulWidget {
   const ScreenHome({super.key});
@@ -32,37 +33,10 @@ class ScreenHome extends StatefulWidget {
 
 class _ScreenHomeState extends State<ScreenHome> {
   @override
-  void didChangeDependencies() {
-    justAudioPlayerObject.currentIndexStream.listen((index) {
-      if (index != null &&
-          mounted &&
-          updatingList.value.isNotEmpty != null &&
-          justAudioPlayerObject.playerState.playing &&
-          justAudioPlayerObject.playerState.processingState !=
-              ProcessingState.idle) {
-        nowPlayingIndex.value = index;
-        BlocProvider.of<MiniPlayerBloc>(context).add(UpdateMiniIndex(index));
-
-        //---------------------------------------------------------------------->>recently played bloc
-        try {
-          final recentSong = RecentlyPlayed(
-              updatingList.value[index].title,
-              updatingList.value[index].artist,
-              updatingList.value[index].id,
-              updatingList.value[index].uri,
-              updatingList.value[index].duration);
-
-          BlocProvider.of<RecentlyPlayedBloc>(context)
-              .add(UpdateRecentlyplayed(recentSong: recentSong));
-        } catch (e) {}
-// //----------------------------------------------------------------------->>mostly played bloc
-
-        BlocProvider.of<MostlyPlayedBloc>(context)
-            .add(UpdateMostlyPLayed(updatingList.value[index]));
-      }
-    });
-
-    super.didChangeDependencies();
+  void initState() {
+    BlocProvider.of<NowPlayingBloc>(context)
+        .add(IntializeAudioObject(audioObj: justAudioPlayerObjectNew));
+    super.initState();
   }
 
   @override
@@ -74,224 +48,273 @@ class _ScreenHomeState extends State<ScreenHome> {
 
     return SafeArea(
       child: Scaffold(
-        bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
-          builder: (context, state) {
-            if (state.showPlayer == false) {
-              return const SizedBox();
-            }
-            return const MiniPlayer();
-          },
-        ),
         backgroundColor: mainColor,
-        appBar: AppBar(
-          leading: GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) {
-                    return const ScreenSettings();
-                  },
-                ));
-              },
-              child: const Icon(Icons.settings)),
-          backgroundColor: mainColor,
-          title: const Text('RythemRider'),
-          centerTitle: true,
-          actions: [
-            GestureDetector(
-              onTap: () async {
-                await refreshAllSongs();
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    duration: Duration(seconds: 1),
-                    content: Text('Songs Refreshed')));
-              },
-              child: Row(
-                children: const [
-                  Icon(Icons.refresh),
-                  Text('Refresh'),
-                  SizedBox(
-                    width: 5,
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                //color: Colors.red,
-                width: double.infinity,
-                height: 270,
-                child: Column(
-                  children: [
-                    //----------------------------row playlist and favouruties
-                    Row(
+        body: Stack(
+          alignment: AlignmentDirectional.bottomCenter,
+          children: [
+            Column(
+              children: [
+                CustomAppBar(
+                  size: size,
+                  heading: 'RythemRider',
+                  twoItems: true,
+                  widgetLeft: Padding(
+                    padding: const EdgeInsets.only(left: 5.0),
+                    child: GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) {
+                              return const ScreenSettings();
+                            },
+                          ));
+                        },
+                        child: const Icon(
+                          Icons.settings,
+                          color: Colors.white,
+                          size: 28,
+                        )),
+                  ),
+                  widgetRight: GestureDetector(
+                    onTap: () async {
+                      await refreshAllSongs();
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          margin: EdgeInsetsDirectional.all(15),
+                          behavior: SnackBarBehavior.floating,
+                          duration: Duration(seconds: 1),
+                          content: Text('Songs Refreshed')));
+                    },
+                    child: const Row(
                       children: [
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (ctx1) {
-                                  return ScreenPlaylists();
-                                },
-                              ));
-                            },
-                            child: MenuTileWidget(
-                              categoryName: 'PlayList',
-                              size: size,
-                            )),
-                        const SizedBox(
-                          width: 10,
+                        Icon(
+                          Icons.refresh,
+                          color: Colors.white,
                         ),
-                        //--------------------favourites
-                        GestureDetector(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (ctx1) {
-                                  return const ScreenFavourtites();
-                                },
-                              ));
-                            },
-                            child: MenuTileWidget(
-                              categoryName: 'Favourites',
-                              size: size,
-                            ),
-                          ),
+                        Text(
+                          'Refresh',
+                          style: TextStyle(color: Colors.white),
                         ),
+                        SizedBox(
+                          width: 5,
+                        )
                       ],
                     ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-
-                    //--------------------------------most played and all songs
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) {
-                                return ScreenMostlyPlayed();
-                              },
-                            ));
-                          },
-                          child: MenuTileWidget(
-                            categoryName: 'Most Played',
-                            size: size,
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        //----------------------all
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (ctx1) {
-                                  return ScreenAllSongs();
-                                },
-                              ));
-                            },
-                            child: MenuTileWidget(
-                              categoryName: 'All Songs',
-                              size: size,
-                            )),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              const Text(
-                'Recently Played',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 10, right: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          // /color: Colors.red,
+                          width: double.infinity,
+                          height: size.height * 0.35,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              //----------------------------row playlist and favouruties
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (ctx1) {
+                                            return ScreenPlaylists();
+                                          },
+                                        ));
+                                      },
+                                      child: MenuTileWidget(
+                                        categoryName: 'PlayList',
+                                        size: size,
+                                      )),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  //--------------------favourites
+                                  GestureDetector(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (ctx1) {
+                                            return ScreenFavourtites();
+                                          },
+                                        ));
+                                      },
+                                      child: MenuTileWidget(
+                                        categoryName: 'Favourites',
+                                        size: size,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 15,
+                              ),
 
-              //---------------------------------------------recently played
+                              //--------------------------------most played and all songs
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                        builder: (context) {
+                                          return const ScreenMostlyPlayed();
+                                        },
+                                      ));
+                                    },
+                                    child: MenuTileWidget(
+                                      categoryName: 'Most Played',
+                                      size: size,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  //----------------------all
+                                  GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                          builder: (ctx1) {
+                                            return ScreenAllSongs();
+                                          },
+                                        ));
+                                      },
+                                      child: MenuTileWidget(
+                                        categoryName: 'All Songs',
+                                        size: size,
+                                      )),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Text(
+                          'Recently Played',
+                          style: TextStyle(fontSize: 18, color: Colors.white),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
 
-              Expanded(
-                  child: BlocBuilder<RecentlyPlayedBloc, RecentlyPlayedState>(
-                builder: (context, state) {
-                  if (state.recentList.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'No Recently Played Songs',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
-                  } else {
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisSpacing: 10, crossAxisCount: 3),
-                      itemCount: state.recentList.length > 9
-                          ? 9
-                          : state.recentList.length,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            final recentSong = RecentlyPlayed(
-                                state.recentList[index].title,
-                                state.recentList[index].artist,
-                                state.recentList[index].id,
-                                state.recentList[index].uri,
-                                state.recentList[index].duration);
+                        //---------------------------------------------recently played
 
-//---------------------------------------------------------------------->>recently played bloc
-                            BlocProvider.of<RecentlyPlayedBloc>(context).add(
-                                UpdateRecentlyplayed(recentSong: recentSong));
-//----------------------------------------------------------------------->>mostly played bloc
+                        Expanded(child: BlocBuilder<RecentlyPlayedBloc,
+                            RecentlyPlayedState>(
+                          builder: (context, state) {
+                            if (state.recentList.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  'No Recently Played Songs',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              );
+                            } else {
+                              return GridView.builder(
+                                shrinkWrap: true,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisSpacing: 10,
+                                        crossAxisCount: 3),
+                                itemCount: state.recentList.length > 9
+                                    ? 9
+                                    : state.recentList.length,
+                                itemBuilder: (context, index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      final recentSong = RecentlyPlayed(
+                                          state.recentList[index].title,
+                                          state.recentList[index].artist,
+                                          state.recentList[index].id,
+                                          state.recentList[index].uri,
+                                          state.recentList[index].duration);
 
-                            BlocProvider.of<MostlyPlayedBloc>(context).add(
-                                UpdateMostlyPLayed(state.recentList[index]));
-                            //-----------------------------------------------------
+                                      //---------------------------------------------------------------------->>recently played bloc
+                                      BlocProvider.of<RecentlyPlayedBloc>(
+                                              context)
+                                          .add(UpdateRecentlyplayed(
+                                              recentSong: recentSong));
+                                      //----------------------------------------------------------------------->>mostly played bloc
 
-                            BlocProvider.of<MiniPlayerBloc>(context)
-                                .add(CloseMiniPlayer());
-                            //----------------------------
+                                      BlocProvider.of<MostlyPlayedBloc>(context)
+                                          .add(UpdateMostlyPLayed(
+                                              state.recentList[index]));
+                                      //-----------------------------------------------------
 
-                            updatingList.value.clear();
-                            updatingList.value = state.recentList;
-                            updatingList.notifyListeners();
+                                      //---<<<<-------------------------------------------------------------------latest update
+                                      context.read<NowPlayingBloc>().add(
+                                          PlaySelectedSong(
+                                              index: index,
+                                              songs: state.recentList,
+                                              audioObj:
+                                                  justAudioPlayerObjectNew));
 
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) {
+                                      nowPlayingIndex.value = index;
+                                      nowPlayingIndex.notifyListeners();
+                                      miniPlayerActive.value = true;
+                                      showingMiniPlayer.value = false;
+                                    },
+                                    onDoubleTap: () async {
+                                      // ------------------------------------------------delete bloc recently played song
+                                      BlocProvider.of<RecentlyPlayedBloc>(
+                                              context)
+                                          .add(DeleteRecentlyPlayed(
+                                              id: state.recentList[index].id!));
+                                    },
+                                    child: RecentlyPlayedCustomTile(
+                                        songName:
+                                            state.recentList[index].title!,
+                                        artistName:
+                                            state.recentList[index].artist!,
+                                        list: state.recentList,
+                                        index: index),
+                                  );
+                                },
+                              );
+                            }
+                          },
+                        )),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            ValueListenableBuilder(
+              valueListenable: miniPlayerActive,
+              builder: (context, isActive, child) {
+                return Visibility(
+                    visible: isActive,
+                    child: ValueListenableBuilder(
+                      valueListenable: showingMiniPlayer,
+                      builder: (context, value, child) {
+                        return Positioned(
+                            bottom: 0, // Adjust the position as needed
+                            left: 0,
+                            right: 0,
+                            top: showingMiniPlayer.value ? null : 0,
+                            child: BlocBuilder<NowPlayingBloc, NowPlayingState>(
+                              builder: (context, state) {
                                 return ScreenNowPlaying(
-                                  songs: state.recentList,
-                                  index: index,
+                                  songs: state.songsList!,
                                 );
                               },
                             ));
-                          },
-                          onDoubleTap: () async {
-                            // ------------------------------------------------delete bloc recently played song
-                            BlocProvider.of<RecentlyPlayedBloc>(context).add(
-                                DeleteRecentlyPlayed(
-                                    id: state.recentList[index].id!));
-                          },
-                          child: RecentlyPlayedCustomTile(
-                              songName: state.recentList[index].title!,
-                              artistName: state.recentList[index].artist!,
-                              list: state.recentList,
-                              index: index),
-                        );
                       },
-                    );
-                  }
-                },
-              )),
-              const SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
+                    ));
+              },
+            )
+          ],
         ),
       ),
     );

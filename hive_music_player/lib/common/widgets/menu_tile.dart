@@ -16,7 +16,7 @@ class MenuTileWidget extends StatelessWidget {
     return ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          height: 120,
+          height: size.height*0.35*0.45,
           //width: 185,
           width: size.width * 0.45,
           //height: double.infinity,

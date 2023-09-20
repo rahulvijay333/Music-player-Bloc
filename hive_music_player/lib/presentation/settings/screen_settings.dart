@@ -29,6 +29,11 @@ class _ScreenSettingsState extends State<ScreenSettings> {
             ),
             centerTitle: true,
             backgroundColor: mainColor,
+            leading: IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.arrow_back_ios)),
           ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),

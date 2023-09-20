@@ -6,6 +6,7 @@ import 'package:hive_music_player/application/RecentlyPlayed/recently_played_blo
 import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
 import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
 import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
+import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/presentation/splash/screen_splash.dart';
 import 'domain/model/fav/fav_mode.dart';
@@ -45,7 +46,7 @@ void main(List<String> args) async {
 
   await Hive.openBox<Playlist>(playlistDbName);
 
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -55,6 +56,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          create: (context) => NowPlayingBloc(),
+        ),
         BlocProvider(
           create: (context) => AllSongsBloc(),
         ),

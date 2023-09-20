@@ -4,11 +4,12 @@ import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.da
 import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
 import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
 import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
+import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:hive_music_player/domain/model/all_songs/model.dart';
 import 'package:hive_music_player/domain/model/fav/fav_mode.dart';
 import 'package:hive_music_player/domain/model/mostply_played/mosltly_played_model.dart';
 import 'package:hive_music_player/domain/model/recently_played/recently_model.dart';
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
+import 'package:hive_music_player/presentation/home/screen_home.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class MostplayedTileCustom extends StatefulWidget {
@@ -63,14 +64,18 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
                     List<AudioModel> audiolist =
                         convertMostlyPlayedToAudioModelList(widget.mostlyList);
 
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) {
-                        return ScreenNowPlaying(
-                          songs: audiolist,
-                          index: widget.index,
-                        );
-                      },
-                    ));
+//---<<<<-------------------------------------------------------------------latest update
+                    context.read<NowPlayingBloc>().add(PlaySelectedSong(
+                        index: widget.index,
+                        songs: audiolist,
+                        audioObj: justAudioPlayerObjectNew));
+
+                    nowPlayingIndex.value = widget.index;
+                    nowPlayingIndex.notifyListeners();
+                    miniPlayerActive.value = true;
+                    showingMiniPlayer.value = false;
+                    //-------------------------------------------------------
+
                     final recentSong = RecentlyPlayed(
                         audiolist[widget.index].title,
                         audiolist[widget.index].artist,
@@ -92,13 +97,10 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
                     BlocProvider.of<MostlyPlayedBloc>(context)
                         .add(UpdateMostlyPLayed(mostSong));
 //------------------------------
-                        BlocProvider.of<MiniPlayerBloc>(context)
-                      .add(CloseMiniPlayer());
+                    BlocProvider.of<MiniPlayerBloc>(context)
+                        .add(CloseMiniPlayer());
 
-                    //update mini player list
-                    updatingList.value.clear();
-                    updatingList.value.addAll(audiolist);
-                    updatingList.notifyListeners();
+               
                   },
                   child: Text(
                     widget.mostlyList[widget.index].title!,
@@ -141,7 +143,6 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
                       element.id == widget.mostlyList[widget.index].id);
                   //---------------------------------------------------------------------
                   if (checkFavouriteStatus(getIndexSong)) {
-                  
                     //------------------------------------------------fav bloc here
                     BlocProvider.of<FavouritesBloc>(context)
                         .add(AddToFavourites(getIndexSong));
@@ -152,7 +153,6 @@ class _MostplayedTileCustomState extends State<MostplayedTileCustom> {
                           'Song added to Favourites',
                         )));
                   } else if (!checkFavouriteStatus(getIndexSong)) {
-                    
                     //--------------------------------------------------fav bloc here
                     BlocProvider.of<FavouritesBloc>(context)
                         .add(RemoveFromFavGeneral(getIndexSong));

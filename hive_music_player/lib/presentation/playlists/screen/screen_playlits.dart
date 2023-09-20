@@ -1,101 +1,136 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
+
+import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
-import 'package:hive_music_player/domain/model/playlist/playlist_model.dart';
+import 'package:hive_music_player/common/widgets/app_bar_custom.dart';
 import 'package:hive_music_player/domain/model/playlist_con/concatenation.dart';
+import 'package:hive_music_player/presentation/all%20songs/widgets/show_playlist_dialoge.dart';
 import 'package:hive_music_player/presentation/home/screen_home.dart';
-import 'package:hive_music_player/presentation/miniPlayer/mini_player.dart';
+import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
 import 'package:hive_music_player/presentation/playlists/screen/playlist.dart';
 import 'package:hive_music_player/presentation/playlists/widgets/play_list_card.dart';
-
 
 //-------------------------------------------------------list of playlist screen
 
 class ScreenPlaylists extends StatelessWidget {
   ScreenPlaylists({super.key});
 
-  
-
   final playlistNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     BlocProvider.of<PlaylistBloc>(context).add(GetAllPlaylist());
     return SafeArea(
-      child: Scaffold(
-        bottomNavigationBar: BlocBuilder<MiniPlayerBloc, MiniPlayerState>(
-          builder: (context, state) {
-            if (state.showPlayer == false) {
-              return const SizedBox();
-            }
-            return const MiniPlayer();
-          },
-        ),
-          backgroundColor: mainColor,
-          appBar: AppBar(
-            title: const Text(
-              'Playlists',
-            ),
+      child: WillPopScope(
+        onWillPop: () async {
+          if (showingMiniPlayer.value == false) {
+            showingMiniPlayer.value = true;
+            return false;
+          } else {
+            return true;
+          }
+        },
+        child: Scaffold(
             backgroundColor: mainColor,
-            centerTitle: true,
-            actions: [
-              //---------------------------------------------------------temperoy cancelled
-              IconButton(
-                  onPressed: () {
-                    createNewPlayListDialoge(context);
-                  },
-                  icon: const Icon(Icons.playlist_add))
-            ],
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: BlocBuilder<PlaylistBloc, PlaylistState>(
-              builder: (context, state) {
-                if (state.playlists.isEmpty) {
-                  return const Center(
-                    child: Text(
-                      'No  Playlist',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  );
-                }
-                return ListView.separated(
-                    physics: const BouncingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                          onTap: () {
-                           
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (ctx1) {
-                                return ScreenPlaylist(
-                                    playlistIndex: index,
-                                    playlistName:
-                                        state.playlists[index].playlistName!,
-                                    playlistSongLists:
-                                        state.playlists[index].playlistSongs);
-                              },
-                            ));
+            body: Stack(
+              children: [
+                Column(
+                  children: [
+                    CustomAppBar(
+                      size: size,
+                      heading: 'Playlist',
+                      twoItems: true,
+                      widgetLeft: IconButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
                           },
-                          child: PlaylistCard(
-                              index: index,
-                              playlistName:
-                                  state.playlists[index].playlistName!,
-                              songCount:
-                                  state.playlists[index].playlistSongs.length));
-                    },
-                    separatorBuilder: (context, index) {
-                      return const SizedBox(
-                        height: 10,
-                      );
-                    },
-                    itemCount: state.playlists.length);
-              },
-            ),
-          )),
+                          icon: const Icon(Icons.arrow_back_ios,color: Colors.white,)),
+                      widgetRight: IconButton(
+                          onPressed: () {
+                            createPlayListDialoge(context);
+                          },
+                          icon: const Icon(
+                            Icons.playlist_add,
+                            color: Colors.white,
+                          )),
+                    ),
+                    Expanded(
+                      child: BlocBuilder<PlaylistBloc, PlaylistState>(
+                        builder: (context, state) {
+                          if (state.playlists.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                'No  Playlist',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }
+                          return ListView.separated(
+                              physics: const BouncingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context)
+                                          .push(MaterialPageRoute(
+                                        builder: (ctx1) {
+                                          return ScreenPlaylist(
+                                              playlistIndex: index,
+                                              playlistName: state
+                                                  .playlists[index]
+                                                  .playlistName!,
+                                              playlistSongLists: state
+                                                  .playlists[index]
+                                                  .playlistSongs);
+                                        },
+                                      ));
+                                    },
+                                    child: PlaylistCard(
+                                        index: index,
+                                        playlistName: state
+                                            .playlists[index].playlistName!,
+                                        songCount: state.playlists[index]
+                                            .playlistSongs.length));
+                              },
+                              separatorBuilder: (context, index) {
+                                return const SizedBox(
+                                  height: 10,
+                                );
+                              },
+                              itemCount: state.playlists.length);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                ValueListenableBuilder(
+                  valueListenable: miniPlayerActive,
+                  builder: (context, isActive, child) {
+                    return Visibility(
+                        visible: isActive,
+                        child: ValueListenableBuilder(
+                          valueListenable: showingMiniPlayer,
+                          builder: (context, value, child) {
+                            return Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                top: showingMiniPlayer.value ? null : 0,
+                                child: BlocBuilder<NowPlayingBloc,
+                                    NowPlayingState>(
+                                  builder: (context, state) {
+                                    return  ScreenNowPlaying(songs: state.songsList!,);
+                                  },
+                                ));
+                          },
+                        ));
+                  },
+                )
+              ],
+            )),
+      ),
     );
   }
 
@@ -184,7 +219,6 @@ class ScreenPlaylists extends StatelessWidget {
                         });
                         playlistNameController.clear();
                       } else {
-                        
                         //------------------------------------------------------------------bloc implementation
                         BlocProvider.of<PlaylistBloc>(context)
                             .add(CreatePlaylist(playlistNameController.text));

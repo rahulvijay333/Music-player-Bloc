@@ -4,14 +4,15 @@ import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.da
 import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
 import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
 import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
+import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:hive_music_player/domain/model/fav/fav_mode.dart';
 import 'package:hive_music_player/domain/model/all_songs/model.dart';
-import 'package:hive_music_player/domain/model/mostply_played/mosltly_played_model.dart';
 import 'package:hive_music_player/domain/model/recently_played/recently_model.dart';
 
 import 'package:hive_music_player/presentation/all%20songs/widgets/show_playlist_dialoge.dart';
+import 'package:hive_music_player/presentation/home/screen_home.dart';
 
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class AllSongTileWidget extends StatelessWidget {
@@ -70,18 +71,15 @@ class AllSongTileWidget extends StatelessWidget {
                   BlocProvider.of<MiniPlayerBloc>(context)
                       .add(CloseMiniPlayer());
 
-                  updatingList.value.clear();
-                  updatingList.value.addAll(songlist);
-                  updatingList.notifyListeners();
+                  context.read<NowPlayingBloc>().add(PlaySelectedSong(
+                      index: index,
+                      songs: songlist,
+                      audioObj: justAudioPlayerObjectNew));
 
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) {
-                      return ScreenNowPlaying(
-                        index: index,
-                        songs: songlist,
-                      );
-                    },
-                  ));
+                  nowPlayingIndex.value = index;
+                  nowPlayingIndex.notifyListeners();
+                  miniPlayerActive.value = true;
+                  showingMiniPlayer.value = false;
                 },
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,5 +166,14 @@ class AllSongTileWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  ConcatenatingAudioSource createPlaylist(List<AudioModel> songs) {
+    List<AudioSource> sources = [];
+
+    for (var song in songs) {
+      sources.add(AudioSource.uri(Uri.parse(song.uri!)));
+    }
+    return ConcatenatingAudioSource(children: sources);
   }
 }

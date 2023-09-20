@@ -4,12 +4,13 @@ import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.da
 import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
 import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
 import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
+import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
 
 import 'package:hive_music_player/domain/model/all_songs/model.dart';
 import 'package:hive_music_player/domain/model/fav/fav_mode.dart';
 import 'package:hive_music_player/domain/model/recently_played/recently_model.dart';
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
+import 'package:hive_music_player/presentation/home/screen_home.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 //tile containing fav and delete function
@@ -72,22 +73,23 @@ class PlaylistSongsTileCustom extends StatelessWidget {
                   BlocProvider.of<MostlyPlayedBloc>(context)
                       .add(UpdateMostlyPLayed(songlist[index]));
 //-------------------
-                      BlocProvider.of<MiniPlayerBloc>(context)
+                  BlocProvider.of<MiniPlayerBloc>(context)
                       .add(CloseMiniPlayer());
 
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) {
-                      return ScreenNowPlaying(
-                        songs: songlist,
-                        index: index,
-                      );
-                    },
-                  ));
-                  //----------------------------------------------------update mini platyer list
+                  //---<<<<-------------------------------------------------------------------latest update
+                  context.read<NowPlayingBloc>().add(PlaySelectedSong(
+                      index: index,
+                      songs: songlist,
+                      audioObj: justAudioPlayerObjectNew));
 
-                  updatingList.value.clear();
-                  updatingList.value.addAll(songlist);
-                  updatingList.notifyListeners();
+                  nowPlayingIndex.value = index;
+                  nowPlayingIndex.notifyListeners();
+                  miniPlayerActive.value = true;
+                  showingMiniPlayer.value = false;
+                  //-------------------------------------------------------
+
+
+             
                 },
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
