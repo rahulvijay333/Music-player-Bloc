@@ -17,7 +17,7 @@ class ScreenMostlyPlayed extends StatelessWidget {
   Widget build(BuildContext context) {
     final ScrollController scrollController = ScrollController();
     final size = MediaQuery.of(context).size;
-    BlocProvider.of<MostlyPlayedBloc>(context).add(GetMostlyPlayed());
+    
     return SafeArea(
         child: WillPopScope(
       onWillPop: () async {

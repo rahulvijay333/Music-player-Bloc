@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rythem_rider/application/RecentlyPlayed/recently_played_bloc.dart';
@@ -536,6 +538,8 @@ class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
                                             builder: (context, snapshot) {
                                               bool? playingState =
                                                   snapshot.data;
+
+                                                  log("${playingState}");
 
                                               if (playingState != null &&
                                                   playingState) {

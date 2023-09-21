@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rythem_rider/application/MostlyPlayed/mostly_played_bloc.dart';
 import 'package:rythem_rider/application/RecentlyPlayed/recently_played_bloc.dart';
+import 'package:rythem_rider/application/all%20songs/all_songs_bloc.dart';
 import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:rythem_rider/common/common.dart';
 import 'package:rythem_rider/common/widgets/app_bar_custom.dart';
@@ -162,6 +163,7 @@ class _ScreenHomeState extends State<ScreenHome> {
                                 children: [
                                   GestureDetector(
                                     onTap: () {
+                                      BlocProvider.of<MostlyPlayedBloc>(context).add(GetMostlyPlayed());
                                       Navigator.of(context)
                                           .push(MaterialPageRoute(
                                         builder: (context) {
@@ -180,6 +182,8 @@ class _ScreenHomeState extends State<ScreenHome> {
                                   //----------------------all
                                   GestureDetector(
                                       onTap: () {
+                                        BlocProvider.of<AllSongsBloc>(context)
+                                            .add(GetAllSongs());
                                         Navigator.of(context)
                                             .push(MaterialPageRoute(
                                           builder: (ctx1) {

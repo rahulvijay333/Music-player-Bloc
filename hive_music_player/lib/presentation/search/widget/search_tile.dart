@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 import 'package:rythem_rider/application/MostlyPlayed/mostly_played_bloc.dart';
 import 'package:rythem_rider/application/RecentlyPlayed/recently_played_bloc.dart';
 import 'package:rythem_rider/application/favourites/favourites_bloc.dart';
@@ -9,7 +10,7 @@ import 'package:rythem_rider/domain/model/all_songs/model.dart';
 import 'package:rythem_rider/domain/model/fav/fav_mode.dart';
 import 'package:rythem_rider/domain/model/recently_played/recently_model.dart';
 import 'package:rythem_rider/presentation/home/screen_home.dart';
-import 'package:on_audio_query/on_audio_query.dart';
+
 
 class SearchTileWidget extends StatefulWidget {
   const SearchTileWidget({
@@ -57,7 +58,7 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
                   ),
                 ),
                 id: widget.audioList[widget.index].id!,
-                type: ArtworkType.AUDIO),
+                type:ArtworkType.AUDIO),
             const SizedBox(
               width: 10,
             ),
@@ -90,7 +91,7 @@ class _SearchTileWidgetState extends State<SearchTileWidget> {
                 BlocProvider.of<MostlyPlayedBloc>(context)
                     .add(UpdateMostlyPLayed(widget.audioList[widget.index]));
 //------------------------------
-                BlocProvider.of<MiniPlayerBloc>(context).add(CloseMiniPlayer());
+               
               },
               child: SizedBox(
                 width: 200,
