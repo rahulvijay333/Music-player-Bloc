@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
+import 'package:rythem_rider/domain/model/all_songs/model.dart';
 part 'mosltly_played_model.g.dart';
 
 String mostlyPlayedDbName = 'Mostly_Played';

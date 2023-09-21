@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
-import 'package:hive_music_player/application/RecentlyPlayed/recently_played_bloc.dart';
-import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
-import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
-import 'package:hive_music_player/application/miniPlayer/mini_player_bloc.dart';
-import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
-import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
-import 'package:hive_music_player/presentation/splash/screen_splash.dart';
+import 'package:rythem_rider/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:rythem_rider/application/RecentlyPlayed/recently_played_bloc.dart';
+import 'package:rythem_rider/application/all%20songs/all_songs_bloc.dart';
+import 'package:rythem_rider/application/favourites/favourites_bloc.dart';
+import 'package:rythem_rider/application/miniPlayer/mini_player_bloc.dart';
+import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
+import 'package:rythem_rider/application/playlist/playlist_bloc.dart';
+import 'package:rythem_rider/presentation/splash/screen_splash.dart';
+
 import 'domain/model/fav/fav_mode.dart';
 import 'domain/model/all_songs/model.dart';
 import 'domain/model/mostply_played/mosltly_played_model.dart';

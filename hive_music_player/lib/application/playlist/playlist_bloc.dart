@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
-import 'package:hive_music_player/domain/model/playlist/playlist_model.dart';
+import 'package:rythem_rider/domain/model/all_songs/model.dart';
+import 'package:rythem_rider/domain/model/playlist/playlist_model.dart';
 import 'package:meta/meta.dart';
 
 part 'playlist_event.dart';

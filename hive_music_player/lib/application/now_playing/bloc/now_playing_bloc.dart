@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
+import 'package:rythem_rider/domain/model/all_songs/model.dart';
 import 'package:just_audio/just_audio.dart';
 
 part 'now_playing_event.dart';

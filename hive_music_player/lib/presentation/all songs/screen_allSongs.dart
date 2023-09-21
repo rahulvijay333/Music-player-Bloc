@@ -1,17 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
+import 'package:rythem_rider/application/all%20songs/all_songs_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_music_player/application/favourites/favourites_bloc.dart';
-import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
-import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/common/widgets/app_bar_custom.dart';
+import 'package:rythem_rider/application/favourites/favourites_bloc.dart';
+import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
+import 'package:rythem_rider/common/common.dart';
+import 'package:rythem_rider/common/widgets/app_bar_custom.dart';
 
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
-import 'package:hive_music_player/presentation/all%20songs/widgets/tile_all_songs.dart';
-import 'package:hive_music_player/presentation/home/screen_home.dart';
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
-import 'package:hive_music_player/presentation/search/screen_search.dart';
+import 'package:rythem_rider/domain/model/all_songs/model.dart';
+import 'package:rythem_rider/presentation/all%20songs/widgets/tile_all_songs.dart';
+import 'package:rythem_rider/presentation/home/screen_home.dart';
+import 'package:rythem_rider/presentation/now_playing/screen_now_playing.dart';
+import 'package:rythem_rider/presentation/search/screen_search.dart';
 
 class ScreenAllSongs extends StatelessWidget {
   ScreenAllSongs({

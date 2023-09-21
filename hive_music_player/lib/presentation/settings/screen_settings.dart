@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/domain/db_functions/reset/reset_app.dart';
-import 'package:hive_music_player/presentation/settings/widget/section/about_section.dart';
-import 'package:hive_music_player/presentation/settings/widget/section/privacy_policy.dart';
-import 'package:hive_music_player/presentation/settings/widget/section/terms_and_conditions.dart';
-import 'package:hive_music_player/presentation/settings/widget/setting.dart';
+import 'package:rythem_rider/common/common.dart';
+import 'package:rythem_rider/domain/db_functions/reset/reset_app.dart';
+import 'package:rythem_rider/presentation/settings/widget/section/about_section.dart';
+import 'package:rythem_rider/presentation/settings/widget/section/privacy_policy.dart';
+import 'package:rythem_rider/presentation/settings/widget/section/terms_and_conditions.dart';
+import 'package:rythem_rider/presentation/settings/widget/setting.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ScreenSettings extends StatefulWidget {
@@ -90,13 +90,10 @@ class _ScreenSettingsState extends State<ScreenSettings> {
                         name: 'Reset App', icon: Icons.restore_sharp)),
                 const Spacer(),
                 const Text(
-                  versionNumber,
+                 '${versionNumber}v',
                   style: TextStyle(color: Colors.white),
                 ),
-                const Text(
-                  'Version',
-                  style: TextStyle(color: Colors.white),
-                )
+               
               ],
             ),
           )),

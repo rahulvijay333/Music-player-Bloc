@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
+import 'package:rythem_rider/domain/model/all_songs/model.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class RecentlyPlayedCustomTile extends StatelessWidget {

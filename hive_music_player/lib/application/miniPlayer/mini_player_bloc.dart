@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
+import 'package:rythem_rider/domain/model/all_songs/model.dart';
 
 part 'mini_player_event.dart';
 part 'mini_player_state.dart';

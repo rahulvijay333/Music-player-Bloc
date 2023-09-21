@@ -1,4 +1,4 @@
-package com.example.hive_music_player
+package app.angelvision.rythemrider
 
 import io.flutter.embedding.android.FlutterActivity
 

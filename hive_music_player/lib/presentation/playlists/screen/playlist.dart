@@ -4,15 +4,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
-import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
-import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/common/widgets/app_bar_custom.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
-import 'package:hive_music_player/presentation/home/screen_home.dart';
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
-import 'package:hive_music_player/presentation/playlists/screen/playlist_song_selection.dart';
-import 'package:hive_music_player/presentation/playlists/widgets/playlist_tile.dart';
+import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
+import 'package:rythem_rider/application/playlist/playlist_bloc.dart';
+import 'package:rythem_rider/common/common.dart';
+import 'package:rythem_rider/common/widgets/app_bar_custom.dart';
+import 'package:rythem_rider/domain/model/all_songs/model.dart';
+import 'package:rythem_rider/presentation/home/screen_home.dart';
+import 'package:rythem_rider/presentation/now_playing/screen_now_playing.dart';
+import 'package:rythem_rider/presentation/playlists/screen/playlist_song_selection.dart';
+import 'package:rythem_rider/presentation/playlists/widgets/playlist_tile.dart';
 
 //add appbar
 class ScreenPlaylist extends StatelessWidget {

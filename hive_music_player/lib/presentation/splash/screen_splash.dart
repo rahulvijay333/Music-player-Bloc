@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
+import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
 
-import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/domain/db_functions/splash/splash_functions.dart';
+import 'package:rythem_rider/common/common.dart';
+import 'package:rythem_rider/domain/db_functions/splash/splash_functions.dart';
 
-import 'package:hive_music_player/presentation/home/screen_home.dart';
-import 'package:hive_music_player/presentation/splash/logo/logo.dart';
+import 'package:rythem_rider/presentation/home/screen_home.dart';
+import 'package:rythem_rider/presentation/splash/logo/logo.dart';
 
 class ScreenSplash extends StatefulWidget {
   const ScreenSplash({super.key});

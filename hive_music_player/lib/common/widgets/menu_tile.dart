@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:hive_music_player/common/common.dart';
+import 'package:rythem_rider/common/common.dart';
 
 class MenuTileWidget extends StatelessWidget {
   const MenuTileWidget({

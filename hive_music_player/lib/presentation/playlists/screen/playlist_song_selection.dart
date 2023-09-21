@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_music_player/application/all%20songs/all_songs_bloc.dart';
-import 'package:hive_music_player/common/common.dart';
+import 'package:rythem_rider/application/all%20songs/all_songs_bloc.dart';
+import 'package:rythem_rider/common/common.dart';
 
-import 'package:hive_music_player/presentation/playlists/widgets/add_song_tile.dart';
+import 'package:rythem_rider/presentation/playlists/widgets/add_song_tile.dart';
 
 class ScreenPlaylistSongSelection extends StatelessWidget {
   ScreenPlaylistSongSelection({super.key, required this.playlistIndex});

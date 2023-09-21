@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
-import 'package:hive_music_player/domain/model/playlist/playlist_model.dart';
+import 'package:rythem_rider/application/playlist/playlist_bloc.dart';
+import 'package:rythem_rider/domain/model/playlist/playlist_model.dart';
 
 showNowPlayingPlaylistDialog(BuildContext context, int songIndex) {
   final box = PlaylistBox.getInstance();

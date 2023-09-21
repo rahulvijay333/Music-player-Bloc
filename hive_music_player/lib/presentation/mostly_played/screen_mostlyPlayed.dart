@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hive_music_player/application/MostlyPlayed/mostly_played_bloc.dart';
-import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
-import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/common/widgets/app_bar_custom.dart';
-import 'package:hive_music_player/domain/model/mostply_played/mosltly_played_model.dart';
-import 'package:hive_music_player/presentation/home/screen_home.dart';
-import 'package:hive_music_player/presentation/mostly_played/widget/most_played_tile.dart';
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
+import 'package:rythem_rider/application/MostlyPlayed/mostly_played_bloc.dart';
+import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
+import 'package:rythem_rider/common/common.dart';
+import 'package:rythem_rider/common/widgets/app_bar_custom.dart';
+import 'package:rythem_rider/domain/model/mostply_played/mosltly_played_model.dart';
+import 'package:rythem_rider/presentation/home/screen_home.dart';
+import 'package:rythem_rider/presentation/mostly_played/widget/most_played_tile.dart';
+import 'package:rythem_rider/presentation/now_playing/screen_now_playing.dart';
 
 class ScreenMostlyPlayed extends StatelessWidget {
   const ScreenMostlyPlayed({super.key});

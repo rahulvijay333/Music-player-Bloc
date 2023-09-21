@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:hive_music_player/domain/db_functions/splash/splash_functions.dart';
-import 'package:hive_music_player/domain/model/all_songs/model.dart';
-import 'package:hive_music_player/domain/model/fav/fav_mode.dart';
+import 'package:rythem_rider/domain/db_functions/splash/splash_functions.dart';
+import 'package:rythem_rider/domain/model/all_songs/model.dart';
+import 'package:rythem_rider/domain/model/fav/fav_mode.dart';
 import 'package:meta/meta.dart';
 
 part 'favourites_event.dart';

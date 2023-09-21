@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:hive_music_player/application/now_playing/bloc/now_playing_bloc.dart';
-import 'package:hive_music_player/application/playlist/playlist_bloc.dart';
-import 'package:hive_music_player/common/common.dart';
-import 'package:hive_music_player/common/widgets/app_bar_custom.dart';
-import 'package:hive_music_player/domain/model/playlist_con/concatenation.dart';
-import 'package:hive_music_player/presentation/all%20songs/widgets/show_playlist_dialoge.dart';
-import 'package:hive_music_player/presentation/home/screen_home.dart';
-import 'package:hive_music_player/presentation/now_playing/screen_now_playing.dart';
-import 'package:hive_music_player/presentation/playlists/screen/playlist.dart';
-import 'package:hive_music_player/presentation/playlists/widgets/play_list_card.dart';
+import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
+import 'package:rythem_rider/application/playlist/playlist_bloc.dart';
+import 'package:rythem_rider/common/common.dart';
+import 'package:rythem_rider/common/widgets/app_bar_custom.dart';
+import 'package:rythem_rider/domain/model/playlist_con/concatenation.dart';
+import 'package:rythem_rider/presentation/all%20songs/widgets/show_playlist_dialoge.dart';
+import 'package:rythem_rider/presentation/home/screen_home.dart';
+import 'package:rythem_rider/presentation/now_playing/screen_now_playing.dart';
+import 'package:rythem_rider/presentation/playlists/screen/playlist.dart';
+import 'package:rythem_rider/presentation/playlists/widgets/play_list_card.dart';
 
 //-------------------------------------------------------list of playlist screen
 
