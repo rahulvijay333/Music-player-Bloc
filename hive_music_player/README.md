@@ -1,16 +1,9 @@
-# hive_music_player
+# RythemRider
 
-A new Flutter project.
+A flutter music player app
 
-## Getting Started
+RhythmRider is all about making it easy for you to enjoy your music collection. You can create playlists, mark your favorite songs, keep track of your most-played tunes, and see your recently played tracks.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Used Bloc to handle state management and followed DDD Architecture..
+- Hive database used for CRUD operations.
+- Player functions -  play/pause, next/prev ,add to favorites , add to playlist.

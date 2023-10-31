@@ -13,15 +13,26 @@ getStoragePermissionInitialMethod() async {
   if (!permissionCheck) {
     await audioquery.permissionsRequest();
 
+    final List<AudioModel> songslist = [];
     querySongs = await audioquery.querySongs();
 
     for (var song in querySongs) {
-      box.add(AudioModel(
+      final songFromDevice = AudioModel(
           title: song.title,
           artist: song.artist,
           id: song.id,
           uri: song.uri,
-          duration: song.duration));
+          duration: song.duration);
+
+      if (!songslist.contains(songFromDevice)) {
+        songslist.add(songFromDevice);
+        box.add(AudioModel(
+            title: song.title,
+            artist: song.artist,
+            id: song.id,
+            uri: song.uri,
+            duration: song.duration));
+      }
     }
   }
 }

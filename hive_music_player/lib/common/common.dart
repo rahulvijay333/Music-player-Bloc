@@ -9,4 +9,4 @@ Color mainColor = const Color.fromARGB(
 
 const String versionNumber = "1.0.0";
 const String shareRythemRiderAppLink =
-    "";
+    "https://play.google.com/store/apps/details?id=app.angelvision.rythemrider";
