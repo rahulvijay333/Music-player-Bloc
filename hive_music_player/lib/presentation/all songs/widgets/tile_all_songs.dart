@@ -85,7 +85,7 @@ class AllSongTileWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      songlist[index].title!,
+                      songlist[index].title ?? 'Unavailable',
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                       style: const TextStyle(
@@ -94,7 +94,7 @@ class AllSongTileWidget extends StatelessWidget {
                           color: Colors.white),
                     ),
                     Text(
-                      songlist[index].artist!,
+                      songlist[index].artist ?? "Unavailable",
                       maxLines: 1,
                       style: const TextStyle(
                         color: Colors.white,

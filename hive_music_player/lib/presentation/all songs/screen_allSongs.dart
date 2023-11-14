@@ -80,29 +80,25 @@ class ScreenAllSongs extends StatelessWidget {
                               ? Container(
                                   width: double.maxFinite,
                                   height: double.maxFinite,
-                                  child: CupertinoScrollbar(
-                                    controller: scrollController,
-                                    thumbVisibility: true,
-                                    child: ListView.separated(
-                                        controller: scrollController,
-                                        physics: const BouncingScrollPhysics(),
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 10.0),
-                                            child: AllSongTileWidget(
-                                              songlist: state.allsongs,
-                                              index: index,
-                                            ),
-                                          );
-                                        },
-                                        separatorBuilder: (context, index) {
-                                          return const SizedBox(
-                                            height: 5,
-                                          );
-                                        },
-                                        itemCount: state.allsongs.length),
-                                  ),
+                                  child: ListView.separated(
+                                      controller: scrollController,
+                                      physics: const BouncingScrollPhysics(),
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                              right: 10.0),
+                                          child: AllSongTileWidget(
+                                            songlist: state.allsongs,
+                                            index: index,
+                                          ),
+                                        );
+                                      },
+                                      separatorBuilder: (context, index) {
+                                        return const SizedBox(
+                                          height: 5,
+                                        );
+                                      },
+                                      itemCount: state.allsongs.length),
                                 )
                               : const Center(
                                   child: Text(
