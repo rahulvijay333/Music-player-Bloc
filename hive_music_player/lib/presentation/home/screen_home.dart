@@ -75,35 +75,24 @@ class _ScreenHomeState extends State<ScreenHome> {
                           size: 28,
                         )),
                   ),
-                  widgetRight: GestureDetector(
-                    onTap: () async {
-                      await refreshAllSongs();
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          margin: EdgeInsetsDirectional.all(15),
-                          behavior: SnackBarBehavior.floating,
-                          duration: Duration(seconds: 1),
-                          content: Text('Songs Refreshed')));
-                    },
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.refresh,
-                          color: Colors.white,
-                        ),
-                        Text(
-                          'Refresh',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        SizedBox(
-                          width: 5,
-                        )
-                      ],
-                    ),
-                  ),
+                  widgetRight: IconButton(
+                      onPressed: () async {
+                        await refreshAllSongs();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                margin: EdgeInsetsDirectional.all(15),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 1),
+                                content: Text('Songs Refreshed')));
+                      },
+                      icon: const Icon(
+                        Icons.refresh,
+                        color: Colors.white,
+                      )),
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
+                    padding: const EdgeInsets.only(left: 10, right: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -163,7 +152,8 @@ class _ScreenHomeState extends State<ScreenHome> {
                                 children: [
                                   GestureDetector(
                                     onTap: () {
-                                      BlocProvider.of<MostlyPlayedBloc>(context).add(GetMostlyPlayed());
+                                      BlocProvider.of<MostlyPlayedBloc>(context)
+                                          .add(GetMostlyPlayed());
                                       Navigator.of(context)
                                           .push(MaterialPageRoute(
                                         builder: (context) {
