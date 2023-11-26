@@ -15,9 +15,10 @@ class ScreenMostlyPlayed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BlocProvider.of<MostlyPlayedBloc>(context).add(GetMostlyPlayed());
     final ScrollController scrollController = ScrollController();
     final size = MediaQuery.of(context).size;
-    
+
     return SafeArea(
         child: WillPopScope(
       onWillPop: () async {
@@ -61,15 +62,15 @@ class ScreenMostlyPlayed extends StatelessWidget {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: CupertinoScrollbar(
-                                      controller: scrollController,
-                                      thumbVisibility: true,
-
+                              controller: scrollController,
+                              thumbVisibility: true,
                               child: ListView.separated(
                                   controller: scrollController,
                                   physics: const BouncingScrollPhysics(),
                                   itemBuilder: (context, index) {
                                     return Padding(
-                                      padding: const EdgeInsets.only(right:8.0),
+                                      padding:
+                                          const EdgeInsets.only(right: 8.0),
                                       child: MostplayedTileCustom(
                                           index: index, mostlyList: mostlist),
                                     );
@@ -106,7 +107,9 @@ class ScreenMostlyPlayed extends StatelessWidget {
                               child:
                                   BlocBuilder<NowPlayingBloc, NowPlayingState>(
                                 builder: (context, state) {
-                                  return  ScreenNowPlaying(songs: state.songsList!,);
+                                  return ScreenNowPlaying(
+                                    songs: state.songsList!,
+                                  );
                                 },
                               ));
                         },

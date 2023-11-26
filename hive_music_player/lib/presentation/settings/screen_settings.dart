@@ -75,7 +75,7 @@ class _ScreenSettingsState extends State<ScreenSettings> {
 
                 GestureDetector(
                     onTap: () {
-                      Share.share(shareRythemRiderAppLink);
+                      Share.share('');
                     },
                     child: const SettingTileCustom(
                         name: 'Share', icon: Icons.share)),

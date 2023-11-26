@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rythem_rider/application/favourites/favourites_bloc.dart';
 import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
 import 'package:rythem_rider/common/common.dart';
+import 'package:rythem_rider/common/debouncer/debouncer.dart';
 import 'package:rythem_rider/common/widgets/app_bar_custom.dart';
 
 import 'package:rythem_rider/domain/model/all_songs/model.dart';
@@ -13,11 +14,17 @@ import 'package:rythem_rider/presentation/home/screen_home.dart';
 import 'package:rythem_rider/presentation/now_playing/screen_now_playing.dart';
 import 'package:rythem_rider/presentation/search/screen_search.dart';
 
+final debouncer = Debouncer(
+  milliseconds: 500,
+);
+
 class ScreenAllSongs extends StatelessWidget {
   ScreenAllSongs({
     super.key,
   });
-
+  static final debouncer = Debouncer(
+    milliseconds: 700,
+  );
   final songDb = MusicBox.getInstance();
   final ScrollController scrollController = ScrollController();
 
@@ -38,6 +45,7 @@ class ScreenAllSongs extends StatelessWidget {
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: mainColor,
         body: Stack(
           alignment: AlignmentDirectional.bottomCenter,
@@ -53,7 +61,7 @@ class ScreenAllSongs extends StatelessWidget {
                           //
                           Navigator.of(context).pop();
                         },
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.arrow_back_ios,
                           color: Colors.white,
                         )),
@@ -69,49 +77,56 @@ class ScreenAllSongs extends StatelessWidget {
                           Icons.search,
                           color: Colors.white,
                         ))),
-                Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: BlocBuilder<AllSongsBloc, AllSongsState>(
-                      builder: (context, state) {
-                        return Container(
-                          height: size.height * 0.82,
-                          width: double.maxFinite,
-                          child: state.allsongs.isNotEmpty
-                              ? Container(
-                                  width: double.maxFinite,
-                                  height: double.maxFinite,
-                                  child: ListView.separated(
-                                      controller: scrollController,
-                                      physics: const BouncingScrollPhysics(),
-                                      itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 10.0),
-                                          child: AllSongTileWidget(
-                                            songlist: state.allsongs,
-                                            index: index,
-                                          ),
-                                        );
-                                      },
-                                      separatorBuilder: (context, index) {
-                                        return const SizedBox(
-                                          height: 5,
-                                        );
-                                      },
-                                      itemCount: state.allsongs.length),
-                                )
-                              : const Center(
-                                  child: Text(
-                                    'No Songs',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                        );
-                      },
-                    )
-                    //---------------------------------------show when No songs available
-
-                    ),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: BlocBuilder<AllSongsBloc, AllSongsState>(
+                            builder: (context, state) {
+                              return Container(
+                                height: size.height * 0.82,
+                                width: double.maxFinite,
+                                child: state.allsongs.isNotEmpty
+                                    ? Container(
+                                        width: double.maxFinite,
+                                        height: double.maxFinite,
+                                        child: ListView.separated(
+                                            controller: scrollController,
+                                            physics:
+                                                const BouncingScrollPhysics(),
+                                            itemBuilder: (context, index) {
+                                              return Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 10.0),
+                                                child: AllSongTileWidget(
+                                                  songlist: state.allsongs,
+                                                  index: index,
+                                                ),
+                                              );
+                                            },
+                                            separatorBuilder: (context, index) {
+                                              return const SizedBox(
+                                                height: 5,
+                                              );
+                                            },
+                                            itemCount: state.allsongs.length),
+                                      )
+                                    : const Center(
+                                        child: Text(
+                                          'No Songs',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                              );
+                            },
+                          )
+                          //---------------------------------------show when No songs available
+                
+                          ),
+                    ],
+                  ),
+                ),
               ],
             ),
             ValueListenableBuilder(

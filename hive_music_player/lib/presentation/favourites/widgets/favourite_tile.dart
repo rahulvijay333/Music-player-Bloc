@@ -9,6 +9,7 @@ import 'package:rythem_rider/common/common.dart';
 import 'package:rythem_rider/domain/model/all_songs/model.dart';
 import 'package:rythem_rider/domain/model/fav/fav_mode.dart';
 import 'package:rythem_rider/domain/model/recently_played/recently_model.dart';
+import 'package:rythem_rider/presentation/all%20songs/screen_allSongs.dart';
 import 'package:rythem_rider/presentation/home/screen_home.dart';
 
 import 'package:on_audio_query/on_audio_query.dart';
@@ -125,6 +126,8 @@ class FavouriteTileCustom extends StatelessWidget {
 
                   BlocProvider.of<FavouritesBloc>(context)
                       .add(DeleteFromFavourites(id));
+
+                
 
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       duration: Duration(seconds: 1),

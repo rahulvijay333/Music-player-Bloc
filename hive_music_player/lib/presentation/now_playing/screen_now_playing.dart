@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rythem_rider/application/MostlyPlayed/mostly_played_bloc.dart';
 import 'package:rythem_rider/application/RecentlyPlayed/recently_played_bloc.dart';
 import 'package:rythem_rider/application/favourites/favourites_bloc.dart';
 import 'package:rythem_rider/application/now_playing/bloc/now_playing_bloc.dart';
@@ -31,24 +32,31 @@ class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
   void initState() {
     super.initState();
 
-    justAudioPlayerObjectNew.currentIndexStream.listen((index) {
-      if (index != null &&
-          justAudioPlayerObjectNew.playerState.playing &&
-          justAudioPlayerObjectNew.playerState.processingState !=
-              ProcessingState.idle) {
-        nowPlayingIndex.value = index;
+    {
+      justAudioPlayerObjectNew.currentIndexStream.listen((index) {
+        if (index != null &&
+            justAudioPlayerObjectNew.playerState.playing &&
+            justAudioPlayerObjectNew.playerState.processingState !=
+                ProcessingState.idle) {
+          nowPlayingIndex.value = index;
 
-        final recentSong = RecentlyPlayed(
-            widget.songs[index].title,
-            widget.songs[index].artist,
-            widget.songs[index].id,
-            widget.songs[index].uri,
-            widget.songs[index].duration);
+          if (mounted) {
+            final recentSong = RecentlyPlayed(
+                widget.songs[nowPlayingIndex.value].title,
+                widget.songs[nowPlayingIndex.value].artist,
+                widget.songs[nowPlayingIndex.value].id,
+                widget.songs[nowPlayingIndex.value].uri,
+                widget.songs[nowPlayingIndex.value].duration);
 
-        BlocProvider.of<RecentlyPlayedBloc>(context)
-            .add(UpdateRecentlyplayed(recentSong: recentSong));
-      }
-    });
+            BlocProvider.of<RecentlyPlayedBloc>(context)
+                .add(UpdateRecentlyplayed(recentSong: recentSong));
+
+            BlocProvider.of<MostlyPlayedBloc>(context)
+                .add(UpdateMostlyPLayed(widget.songs[index]));
+          }
+        }
+      });
+    }
   }
 
   @override
@@ -538,8 +546,6 @@ class _ScreenNowPlayingState extends State<ScreenNowPlaying> {
                                             builder: (context, snapshot) {
                                               bool? playingState =
                                                   snapshot.data;
-
-                                                  log("${playingState}");
 
                                               if (playingState != null &&
                                                   playingState) {

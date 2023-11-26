@@ -7,6 +7,6 @@ Color mainColor = const Color.fromARGB(
   62,
 );
 
-const String versionNumber = "1.0.0";
+const String versionNumber = "1.0.2";
 const String shareRythemRiderAppLink =
     "https://play.google.com/store/apps/details?id=app.angelvision.rythemrider";

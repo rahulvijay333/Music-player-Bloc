@@ -86,10 +86,10 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
                 playlistName: playListDb[event.playlistIndex].playlistName,
                 playlistSongs: playSongs));
 
-                ScaffoldMessenger.of(event.context).showSnackBar(SnackBar(
-        duration: const Duration(seconds: 1),
-        content:
-            Text('Song added to ${playListDb[event.playlistIndex].playlistName}')));
+        ScaffoldMessenger.of(event.context).showSnackBar(SnackBar(
+            duration: const Duration(seconds: 1),
+            content: Text(
+                'Song added to ${playListDb[event.playlistIndex].playlistName}')));
       }
 
       if (checkSong) {
@@ -102,11 +102,10 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
             Playlist(
                 playlistName: playlist.playlistName, playlistSongs: playSongs));
 
-
-                ScaffoldMessenger.of(event.context).showSnackBar(SnackBar(
-        duration: const Duration(seconds: 1),
-        content:
-            Text('song removed from ${playListDb[event.playlistIndex].playlistName}')));
+        ScaffoldMessenger.of(event.context).showSnackBar(SnackBar(
+            duration: const Duration(seconds: 1),
+            content: Text(
+                'song removed from ${playListDb[event.playlistIndex].playlistName}')));
       }
 
       add(GetAllPlaylist());
@@ -130,9 +129,7 @@ class PlaylistBloc extends Bloc<PlaylistEvent, PlaylistState> {
           Playlist(
               playlistName: playlist.playlistName, playlistSongs: playSongs));
 
-
       add(GetAllPlaylist());
-
     });
   }
 }
