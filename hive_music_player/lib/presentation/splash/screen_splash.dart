@@ -22,49 +22,51 @@ class ScreenSplash extends StatefulWidget {
 }
 
 class _ScreenSplashState extends State<ScreenSplash> {
-  bool _hasPermission = false;
+  // bool _hasPermission = false;
 
-  Future<bool> checkAndRequestPermissions({bool retry = false}) async {
-    _hasPermission = await audioquery.checkAndRequest(
-      retryRequest: retry,
-    );
+  // Future<bool> checkAndRequestPermissions({bool retry = false}) async {
+  //   _hasPermission = await audioquery.checkAndRequest(
+  //     retryRequest: retry,
+  //   );
 
-    if (_hasPermission) {
-      final List<AudioModel> songslist = [];
-      querySongs = await audioquery.querySongs();
-      await box.clear();
-      for (var song in querySongs) {
-        final songFromDevice = AudioModel(
-            title: song.title,
-            artist: song.artist,
-            id: song.id,
-            uri: song.uri,
-            duration: song.duration);
+  //   if (_hasPermission) {
+  //     final List<AudioModel> songslist = [];
+  //     querySongs = await audioquery.querySongs();
+  //     await box.clear();
+  //     for (var song in querySongs) {
+  //       final songFromDevice = AudioModel(
+  //           title: song.title,
+  //           artist: song.artist,
+  //           id: song.id,
+  //           uri: song.uri,
+  //           duration: song.duration);
 
-        if (!songslist.contains(songFromDevice)) {
-          songslist.add(songFromDevice);
-          await box.add(AudioModel(
-              title: song.title,
-              artist: song.artist,
-              id: song.id,
-              uri: song.uri,
-              duration: song.duration));
-        }
-      }
-      await Future.delayed(const Duration(seconds: 2));
+  //       if (!songslist.contains(songFromDevice)) {
+  //         songslist.add(songFromDevice);
+  //         await box.add(AudioModel(
+  //             title: song.title,
+  //             artist: song.artist,
+  //             id: song.id,
+  //             uri: song.uri,
+  //             duration: song.duration));
+  //       }
+  //     }
+  //     await Future.delayed(const Duration(seconds: 2));
 
-      gotohomePage();
-      return true;
-    } else {
-      gotoPermissionErrorPage();
-      return false;
-    }
-  }
+  //     gotohomePage();
+  //     return true;
+  //   } else {
+  //     gotoPermissionErrorPage();
+  //     return false;
+  //   }
+  // }
 
   @override
   void initState() {
-    checkAndRequestPermissions();
+    // checkAndRequestPermissions();
+    getStoragePermissionInitialMethod();
     super.initState();
+    gotohomePage();
   }
 
   @override
@@ -78,6 +80,7 @@ class _ScreenSplashState extends State<ScreenSplash> {
   }
 
   void gotohomePage() async {
+    await Future.delayed(const Duration(seconds: 5));
     Navigator.of(context).pushReplacement(MaterialPageRoute(
       builder: (ctx) {
         return const ScreenHome();

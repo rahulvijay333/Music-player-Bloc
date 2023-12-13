@@ -9,10 +9,10 @@ List<SongModel> querySongs = [];
 
 getStoragePermissionInitialMethod() async {
   bool permissionCheck = await audioquery.permissionsStatus();
-  bool checkpermission = await audioquery.checkAndRequest();
+  // bool checkpermission = await audioquery.checkAndRequest();
 
-  if (!checkpermission) {
-    // await audioquery.permissionsRequest();
+  if (!permissionCheck) {
+    await audioquery.permissionsRequest();
 
     final List<AudioModel> songslist = [];
     querySongs = await audioquery.querySongs();
