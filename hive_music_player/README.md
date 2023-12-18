@@ -8,6 +8,9 @@ RhythmRider is all about making it easy for you to enjoy your music collection. 
 - Hive database used for CRUD operations.
 - Player functions -  play/pause, next/prev ,add to favorites , add to playlist.
 
+[![Video](https://img.youtube.com/vi/ZUaddJ7YccM/0.jpg)](https://www.youtube.com/watch?v=ZUaddJ7YccM)
+
+
 Home Screen
 
 ![Alt text](assets/screen_shots/home.png)
